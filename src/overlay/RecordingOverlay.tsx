@@ -279,6 +279,15 @@ const RecordingOverlay: React.FC = () => {
     ? t("overlay.loadingModel")
     : t("overlay.transcribing");
 
+  // Living background: a voice "energy" (0–1) from the mic levels drives how
+  // bright the drifting amber gradient behind the pill glows while recording.
+  const energy = Math.min(
+    1,
+    Math.pow(levels.reduce((a, v) => a + v, 0) / (levels.length || 1), 0.6) *
+      1.6,
+  );
+  const liveStyle = { "--energy": energy.toFixed(3) } as React.CSSProperties;
+
   // ---- Shared building blocks (one visual language for every overlay form) ----
   const waveform = (
     <div className={`swave ${captureReady ? "ready" : "arming"}`}>
@@ -383,8 +392,14 @@ const RecordingOverlay: React.FC = () => {
           key={session}
           className={`scard ${open ? "open" : ""} ${collapsed ? "working" : ""} ${
             isVisible ? "" : "leaving"
-          } ${noticeClass}`}
-          style={liveNotice && !open ? { width: noticeWidth } : undefined}
+          } ${!working && !liveNotice && captureReady ? "live" : ""} ${noticeClass}`}
+          style={
+            liveNotice && !open
+              ? { width: noticeWidth }
+              : working
+                ? undefined
+                : liveStyle
+          }
           onClick={dismissNotice}
         >
           <div className="stext">
@@ -443,8 +458,12 @@ const RecordingOverlay: React.FC = () => {
     >
       {noticeProbe}
       <div
-        className={`scard compact ${working && isVisible ? "cworking" : ""} ${noticeClass}`}
-        style={shownNotice ? { width: noticeWidth } : undefined}
+        className={`scard compact ${working && isVisible ? "cworking" : ""} ${
+          !working && !shownNotice && captureReady ? "live" : ""
+        } ${noticeClass}`}
+        style={
+          shownNotice ? { width: noticeWidth } : working ? undefined : liveStyle
+        }
         onClick={dismissNotice}
       >
         {shownNotice

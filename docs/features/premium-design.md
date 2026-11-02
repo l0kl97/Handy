@@ -59,4 +59,5 @@ Jonah also shared two screenshots of tryprofound.com: black canvas, a sidebar wi
 - 2026-11-02: review caught bare custom properties in color-mix() (status washes blank) and a glass toggle without rollback; fixed test-first (`fix:` commit).
 - 2026-11-02: round 2: dark-first, toolbar title, dark widget, native Liquid Glass.
 - 2026-11-02: round 3: accent blue → amber, as in Jonah's Profound screenshots.
+- 2026-11-02: round 4 (Jonah: "pulsierender Gradient … Background, der leicht lebendig wirkt, wenn ich aufnehme"): the widget gets a drifting amber/ember gradient behind its content; its brightness follows the voice level (`--energy`, computed from the mic levels). The live text is upright, with tentative words dimmed, and cancel is a white disc like Profound's stop button. History entries are grey chat bubbles. Covered by `tests/overlay.spec.ts`, which drives the overlay with mocked show-overlay/recording-ready/mic-level events.
 - 2026-11-02: native check: a 58% translucent content panel turned grey over the glass. Now only the sidebar is glass and the panel/cards stay nearly opaque (86%/92%), as in macOS 26 apps.

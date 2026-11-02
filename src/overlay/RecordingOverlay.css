@@ -258,7 +258,7 @@
   padding-left: 14px;
   padding-right: 14px;
   font-size: 15px;
-  font-style: italic;
+  font-style: normal;
   line-height: 1.35;
   letter-spacing: -0.003em;
   color: var(--color-text);
@@ -277,7 +277,8 @@
   margin: auto 0 0;
 }
 .stext-cap .tentative {
-  color: inherit;
+  /* Not yet final: a step dimmer, like Profound's "Working" text. */
+  color: var(--s-muted);
 }
 .stext-cap .sloading {
   color: var(--s-muted);
@@ -430,8 +431,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--s-muted);
-  background: var(--s-hair);
+  /* Profound's stop button: a solid white disc with a dark glyph. */
+  color: #0b0b0c;
+  background: rgba(245, 245, 247, 0.92);
   cursor: pointer;
   transition:
     background-color 150ms ease,
@@ -444,8 +446,8 @@
   display: block;
 }
 .sx:hover {
-  background: var(--s-accent-soft);
-  color: var(--color-text);
+  background: #ffffff;
+  color: #000000;
   transform: scale(1.05);
 }
 .sx:active {
@@ -476,4 +478,78 @@
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* ------------------------------------------------------------------ */
+/* Living background while recording                                   */
+/* A drifting amber/ember gradient sits behind the pill's content; its */
+/* brightness follows --energy (voice level, set from the mic levels). */
+/* ------------------------------------------------------------------ */
+.scard {
+  position: relative;
+  isolation: isolate;
+}
+.scard > * {
+  position: relative;
+  z-index: 1;
+}
+.scard::before {
+  content: "";
+  position: absolute;
+  inset: -40%;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      28% 60% at 30% 62%,
+      color-mix(in srgb, var(--s-accent) 70%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      26% 55% at 68% 58%,
+      rgba(255, 96, 32, 0.55),
+      transparent 70%
+    ),
+    radial-gradient(
+      30% 50% at 50% 30%,
+      rgba(70, 110, 255, 0.22),
+      transparent 70%
+    );
+  filter: blur(14px);
+  opacity: 0;
+  transform: scale(1);
+  transition: opacity 260ms ease;
+}
+.scard.live::before {
+  /* Quiet: a faint ember. Speaking: the glow swells with the voice. */
+  opacity: calc(0.16 + var(--energy, 0) * 0.7);
+  transform: scale(calc(1 + var(--energy, 0) * 0.08));
+  transition:
+    opacity 140ms linear,
+    transform 140ms linear;
+  animation: s-drift 7s ease-in-out infinite alternate;
+}
+@keyframes s-drift {
+  0% {
+    translate: -14% 0;
+    rotate: -4deg;
+  }
+  50% {
+    translate: 6% -4%;
+    rotate: 3deg;
+  }
+  100% {
+    translate: 14% 2%;
+    rotate: -2deg;
+  }
+}
+/* The "listening" dot glows in the accent while live. */
+.scard.live .sdot.ready {
+  box-shadow: 0 0 calc(6px + var(--energy, 0) * 10px) var(--s-accent);
+}
+@media (prefers-reduced-motion: reduce) {
+  .scard.live::before {
+    animation: none;
+    transform: none;
+  }
 }

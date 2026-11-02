@@ -85,7 +85,7 @@ const TranscribePulseKeyframes: React.FC = () => (
 const FileReadRow: React.FC<{ read: FileRead }> = ({ read }) => {
   const { t } = useTranslation();
   return (
-    <div className="px-4 py-2 pb-5 flex flex-col gap-3">
+    <div className="px-1 flex flex-col gap-2.5">
       <span
         className="flex items-center gap-1 min-w-0 h-7 text-sm text-ink-3"
         title={read.name}
@@ -321,7 +321,7 @@ export const HistorySettings: React.FC = () => {
     content = (
       <>
         <AudioPlayerGroup>
-          <div className="divide-y divide-line">
+          <div className="flex flex-col gap-7 py-1">
             {reads.map((read) => (
               <FileReadRow key={`read-${read.id}`} read={read} />
             ))}
@@ -351,7 +351,7 @@ export const HistorySettings: React.FC = () => {
       <div className="space-y-2">
         <div className="px-4 flex items-center justify-between">
           <div>
-            <h2 className="text-xs font-medium text-ink-3 uppercase tracking-wide">
+            <h2 className="text-[12px] font-medium text-ink-3">
               {t("settings.history.title")}
             </h2>
           </div>
@@ -368,9 +368,8 @@ export const HistorySettings: React.FC = () => {
             />
           </div>
         </div>
-        <div className="bg-background border border-line rounded-lg overflow-visible">
-          {content}
-        </div>
+        {/* Transcripts read like Profound's chat: a grey bubble per entry. */}
+        <div className="overflow-visible">{content}</div>
       </div>
     </div>
   );
@@ -465,10 +464,12 @@ const HistoryEntryComponent: React.FC<HistoryEntryProps> = ({
   }
 
   return (
-    <div className="px-4 py-2 pb-5 flex flex-col gap-3">
+    <div className="px-1 flex flex-col gap-2.5">
       <div className="flex justify-between items-center gap-3">
         <div className="flex items-center gap-2 min-w-0">
-          <p className="text-sm font-medium shrink-0">{formattedDate}</p>
+          <p className="text-[12px] font-medium text-ink-3 shrink-0">
+            {formattedDate}
+          </p>
           {entry.source_name && (
             <span
               className="flex items-center gap-1 min-w-0 text-sm text-ink-3"
@@ -534,10 +535,10 @@ const HistoryEntryComponent: React.FC<HistoryEntryProps> = ({
         </div>
       </div>
 
-      <div className="flex flex-col items-start gap-1 pb-2">
+      <div className="flex flex-col items-start gap-1.5 rounded-[14px] bg-surface-2 border border-line px-4 py-3">
         <p
           ref={textRef}
-          className={`italic text-sm w-full ${
+          className={`text-[14px] leading-[1.6] w-full ${
             retrying
               ? ""
               : hasTranscription
@@ -571,7 +572,7 @@ const HistoryEntryComponent: React.FC<HistoryEntryProps> = ({
           <button
             type="button"
             onClick={() => setExpanded(!expanded)}
-            className="text-xs font-medium text-ink-3 hover:text-logo-primary cursor-pointer"
+            className="text-xs font-medium text-ink-3 hover:text-text cursor-pointer"
           >
             {expanded
               ? t("settings.history.showLess")
