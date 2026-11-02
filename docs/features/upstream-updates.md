@@ -12,7 +12,7 @@
 - **The official updater is never used.** It installs stock Handy from cjpais's releases and would replace the fork (design, insights, app context). The footer's update control is now notice-only.
 - **In-app notice:** the footer reads `releases/latest` of cjpais/Handy (8 s timeout, errors only logged) and, when it is newer than the app version, shows "Handy x.y available" in amber. A click opens the release notes; nothing is installed. The tray's "Check for updates" triggers the same check.
 - **Weekly GitHub check** (`.github/workflows/upstream-watch.yml`): opens one issue per new upstream release. Issues are off on the fork; until they are enabled, the run fails on purpose with a clear message (GitHub emails failed runs).
-- **Bringing an update in** is a merge: `git fetch upstream && git merge upstream/main` on `jonah`, run the checks, then rebuild and replace the app.
+- **Bringing an update in** is a merge: `git fetch upstream && git merge upstream/main` on `jonah`, run the checks, rebuild with `APPLE_SIGNING_IDENTITY="Developer ID Application: Jonah Jeschkeit (WFH9R23JGF)" bun run tauri build --bundles app` (a stable signature keeps the macOS permissions), and replace `/Applications/Handy.app`.
 - **Data survives updates:** settings, models, history and the fork's tables (`dictation_words`, `dictation_apps`) live in `~/Library/Application Support/com.pais.handy/`, not in the app bundle. Replacing the app keeps them. The fork's tables are created with `CREATE TABLE IF NOT EXISTS` outside upstream's numbered migrations, so upstream schema changes do not touch them.
 - Rejected for now: a one-click self-update for the fork. It needs its own release pipeline and signing key.
 
