@@ -57,3 +57,4 @@ Jonah also shared two screenshots of tryprofound.com: black canvas, a sidebar wi
 - 2026-11-02: created
 - 2026-11-02: review caught bare custom properties in color-mix() (status washes blank) and a glass toggle without rollback; fixed test-first (`fix:` commit).
 - 2026-11-02: round 2: dark-first, toolbar title, dark widget, native Liquid Glass.
+- 2026-11-02: native check: a 58% translucent content panel turned grey over the glass. Now only the sidebar is glass and the panel/cards stay nearly opaque (86%/92%), as in macOS 26 apps.

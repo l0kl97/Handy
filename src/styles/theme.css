@@ -325,10 +325,10 @@
   --shadow-card: 0 0 0 0.5px rgba(255, 255, 255, 0.04) inset;
 }
 
-/* Glass: let the macOS vibrancy material through. The sidebar canvas goes
-   fully clear; the content panel and cards keep enough body to stay legible. */
+/* Glass (Tahoe-style): the sidebar is the glass; the content panel stays
+   nearly opaque so text is crisp and the glass does not turn the page grey. */
 :root[data-glass="on"] {
   --canvas-alpha: 0%;
-  --bg-alpha: 58%;
-  --surface-alpha: 62%;
+  --bg-alpha: 86%;
+  --surface-alpha: 92%;
 }
