@@ -425,3 +425,44 @@ test("every page renders without errors", async ({ page }) => {
   }
   expect(errors).toEqual([]);
 });
+
+test("history shows how many words each entry has", async ({ page }) => {
+  await mockTauri(page, { theme: "dark", glass: false });
+  await page.goto("/");
+  await page.locator("nav").getByRole("button", { name: "History" }).click();
+  // "Kannst du mir bis morgen das Angebot für Wrenfield schicken?" = 10 words
+  await expect(page.getByText("· 10 words")).toBeVisible();
+  // "Notiz ohne bekannte App." = 4 words
+  await expect(page.getByText("· 4 words")).toBeVisible();
+});
+
+test("dictionary has its own page for adding words quickly", async ({
+  page,
+}) => {
+  await mockTauri(page, { theme: "dark", glass: false });
+  await page.goto("/");
+  await page.locator("nav").getByRole("button", { name: "Dictionary" }).click();
+  const input = page.getByPlaceholder("Add a word");
+  await input.fill("Wrenfield");
+  await input.press("Enter");
+  await expect(
+    page.getByRole("button", { name: /Remove.*Wrenfield|Wrenfield/ }),
+  ).toBeVisible();
+
+  // No longer duplicated in Advanced.
+  await page.locator("nav").getByRole("button", { name: "Advanced" }).click();
+  await expect(page.getByPlaceholder("Add a word")).toHaveCount(0);
+});
+
+test("the tallest bar keeps clear of the chart heading", async ({ page }) => {
+  await mockTauri(page, { theme: "dark", glass: false });
+  await page.setViewportSize({ width: 1040, height: 900 });
+  await page.goto("/");
+  const heading = page.getByText("660 words today");
+  const today = page.getByRole("listitem").last().locator("div div");
+  const h = await heading.boundingBox();
+  const b = await today.boundingBox();
+  expect(h && b).toBeTruthy();
+  // At least 16px between the heading's bottom and the bar's top.
+  expect(b!.y - (h!.y + h!.height)).toBeGreaterThanOrEqual(16);
+});

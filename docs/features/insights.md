@@ -44,3 +44,4 @@ The "Tacho" is the percentile gauge in the Profound screenshot.
 
 - 2026-11-02: created
 - 2026-11-02: pre-push review: retried dictations were never counted (only `save_entry` recorded). Rows are now keyed by history id and upserted from `save_entry` and `update_transcription`. Create + backfill run in one transaction, and a stats failure only warns. The early dev schema (no `history_id`) is rebuilt from history. The insights listener no longer leaks on a fast unmount.
+- 2026-11-02: Jonah questioned "9 min saved" for ~460 words. The math was right (typing 11.5 − speaking 3.1), but the 40 wpm assumption was hidden. The typing speed is now selectable (30–100 wpm, remembered per device) and a math line shows typing vs speaking minutes. Gauge and bars are one flat amber (the blur filter's box read as a 'column'). Cards share 20px padding with 16px heading→content, and bars sit in a fixed track with headroom (max 85%) so they never touch the heading.

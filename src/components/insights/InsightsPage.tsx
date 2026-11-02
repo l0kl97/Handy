@@ -90,7 +90,7 @@ export const InsightsPage: React.FC = () => {
       )}
 
       {/* Gauge card */}
-      <section className="glass-card relative overflow-hidden rounded-[16px] border border-line bg-surface px-6 pt-6 pb-5">
+      <section className="glass-card relative overflow-hidden rounded-[16px] border border-line bg-surface p-5">
         <div className="flex items-start justify-between">
           <h2 className="text-[12px] font-medium text-ink-3">
             {t("insights.gauge.title")}
@@ -170,13 +170,13 @@ export const InsightsPage: React.FC = () => {
         ].map((tile) => (
           <div
             key={tile.key}
-            className="glass-card rounded-[14px] border border-line bg-surface px-4 py-3.5"
+            className="glass-card rounded-[16px] border border-line bg-surface p-5"
           >
             <p className="text-[12px] text-ink-3">
               {t(`insights.tiles.${tile.key}`)}
             </p>
             <p
-              className="title-display mt-1 text-[26px] leading-tight font-semibold text-text"
+              className="title-display mt-1.5 text-[26px] leading-tight font-semibold text-text"
               style={{ fontVariantNumeric: "tabular-nums" }}
             >
               {tile.value}
@@ -191,7 +191,7 @@ export const InsightsPage: React.FC = () => {
       </div>
 
       {/* Last 7 days */}
-      <section className="glass-card rounded-[16px] border border-line bg-surface px-5 pt-4 pb-3">
+      <section className="glass-card rounded-[16px] border border-line bg-surface p-5">
         <div className="flex items-baseline justify-between">
           <h2 className="text-[12px] font-medium text-ink-3">
             {t("insights.chart.title")}
@@ -200,10 +200,12 @@ export const InsightsPage: React.FC = () => {
             {t("insights.chart.today", { count: s.wordsToday })}
           </span>
         </div>
-        <div className="mt-4 flex h-28 items-end gap-3" role="list">
+        {/* Fixed track: the tallest bar keeps headroom under the heading,
+            however many days have data. */}
+        <div className="mt-4 flex gap-3" role="list">
           {s.days.map((d, i) => {
             const isToday = i === s.days.length - 1;
-            const h = d.words === 0 ? 3 : Math.max(6, (d.words / maxDay) * 100);
+            const h = d.words === 0 ? 0 : Math.max(6, (d.words / maxDay) * 85);
             return (
               <div
                 key={d.start}
@@ -214,16 +216,22 @@ export const InsightsPage: React.FC = () => {
                 })}
                 className="flex flex-1 flex-col items-center gap-2"
               >
-                <div className="relative flex h-24 w-full items-end justify-center">
-                  <div
-                    className={`w-full max-w-9 rounded-[6px] transition-[height] duration-500 ${
-                      isToday ? "bg-accent" : "bg-surface-2 border border-line"
-                    }`}
-                    style={{ height: `${h}%` }}
-                  />
+                <div className="flex h-24 w-full items-end justify-center">
+                  {d.words === 0 ? (
+                    <div className="h-[2px] w-full max-w-9 rounded-full bg-line" />
+                  ) : (
+                    <div
+                      className={`w-full max-w-9 rounded-[6px] transition-[height] duration-500 ${
+                        isToday
+                          ? "bg-accent"
+                          : "bg-surface-2 border border-line"
+                      }`}
+                      style={{ height: `${h}%` }}
+                    />
+                  )}
                 </div>
                 <span
-                  className={`text-[11px] ${isToday ? "text-text font-medium" : "text-ink-3"}`}
+                  className={`text-[11px] leading-none ${isToday ? "text-text font-medium" : "text-ink-3"}`}
                 >
                   {weekday.format(d.start)}
                 </span>

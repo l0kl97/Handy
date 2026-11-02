@@ -19,6 +19,7 @@
     "advanced": "उन्नत",
     "postProcessing": "पोस्ट प्रोसेस",
     "history": "हिस्ट्री",
+    "dictionary": "Dictionary",
     "debug": "डिबग",
     "about": "बारेमा"
   },
@@ -718,7 +719,9 @@
       "showLess": "कम देखाउनुहोस्",
       "dropTitle": "ट्रान्सक्राइब गर्न छोड्नुहोस्",
       "dropDescription": "यो इतिहासमा देखिनेछ।",
-      "appContext": "Dictated into {{app}}"
+      "appContext": "Dictated into {{app}}",
+      "wordCount_one": "· {{count}} word",
+      "wordCount_other": "· {{count}} words"
     },
     "debug": {
       "title": "डिबग",
@@ -1031,5 +1034,8 @@
     "wpm_one": "{{count}} word/min",
     "wpm_other": "{{count}} words/min",
     "speakingNote": "Speaking ≈ {{speaking}} words/min (estimate)"
+  },
+  "dictionary": {
+    "hint": "Names, brands and terms Handy should spell your way. Models with vocabulary support get the words before transcribing; for all others Handy corrects similar words afterwards. Either way it costs practically no time. The after-the-fact correction currently works with A–Z and digits only."
   }
 }

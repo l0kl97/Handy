@@ -35,3 +35,4 @@
 ## History
 
 - 2026-11-02: created
+- 2026-11-02: shown as amber icon + name (no pill), plus the entry's word count ("· 42 words", same rules as the stats via `src/lib/stats/words.ts`).

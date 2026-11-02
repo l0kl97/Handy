@@ -19,6 +19,7 @@
     "advanced": "高级",
     "postProcessing": "后处理",
     "history": "历史记录",
+    "dictionary": "Dictionary",
     "debug": "调试",
     "about": "关于"
   },
@@ -718,7 +719,9 @@
       "showLess": "收起",
       "dropTitle": "拖放到此处进行转录",
       "dropDescription": "它会出现在历史记录中。",
-      "appContext": "Dictated into {{app}}"
+      "appContext": "Dictated into {{app}}",
+      "wordCount_one": "· {{count}} word",
+      "wordCount_other": "· {{count}} words"
     },
     "debug": {
       "title": "调试",
@@ -1031,5 +1034,8 @@
     "wpm_one": "{{count}} word/min",
     "wpm_other": "{{count}} words/min",
     "speakingNote": "Speaking ≈ {{speaking}} words/min (estimate)"
+  },
+  "dictionary": {
+    "hint": "Names, brands and terms Handy should spell your way. Models with vocabulary support get the words before transcribing; for all others Handy corrects similar words afterwards. Either way it costs practically no time. The after-the-fact correction currently works with A–Z and digits only."
   }
 }

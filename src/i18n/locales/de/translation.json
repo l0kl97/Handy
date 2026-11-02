@@ -19,6 +19,7 @@
     "advanced": "Erweitert",
     "postProcessing": "Nachbearbeitung",
     "history": "Verlauf",
+    "dictionary": "Wörterbuch",
     "debug": "Debug",
     "about": "Info"
   },
@@ -718,7 +719,9 @@
       "showLess": "Weniger anzeigen",
       "dropTitle": "Zum Transkribieren ablegen",
       "dropDescription": "Es erscheint im Verlauf.",
-      "appContext": "Diktiert in {{app}}"
+      "appContext": "Diktiert in {{app}}",
+      "wordCount_one": "· {{count}} Wort",
+      "wordCount_other": "· {{count}} Wörter"
     },
     "debug": {
       "title": "Debug",
@@ -1031,5 +1034,8 @@
     "wpm_one": "{{count}} Wort/Min.",
     "wpm_other": "{{count}} Wörter/Min.",
     "speakingNote": "Sprechen ≈ {{speaking}} Wörter/Min. (Schätzung)"
+  },
+  "dictionary": {
+    "hint": "Namen, Marken und Fachbegriffe, die Handy richtig schreiben soll. Modelle mit Vokabular-Unterstützung bekommen die Wörter direkt vor dem Transkribieren; bei allen anderen korrigiert Handy danach ähnliche Wörter. Das kostet praktisch keine Zeit. Die Korrektur danach funktioniert derzeit nur mit A–Z und Ziffern."
   }
 }

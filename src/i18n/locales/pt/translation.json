@@ -19,6 +19,7 @@
     "advanced": "Avançado",
     "postProcessing": "Pós-Processamento",
     "history": "Histórico",
+    "dictionary": "Dictionary",
     "debug": "Depuração",
     "about": "Sobre"
   },
@@ -718,7 +719,9 @@
       "showLess": "Mostrar menos",
       "dropTitle": "Solte para transcrever",
       "dropDescription": "Ele aparecerá no histórico.",
-      "appContext": "Dictated into {{app}}"
+      "appContext": "Dictated into {{app}}",
+      "wordCount_one": "· {{count}} word",
+      "wordCount_other": "· {{count}} words"
     },
     "debug": {
       "title": "Depuração",
@@ -1031,5 +1034,8 @@
     "wpm_one": "{{count}} word/min",
     "wpm_other": "{{count}} words/min",
     "speakingNote": "Speaking ≈ {{speaking}} words/min (estimate)"
+  },
+  "dictionary": {
+    "hint": "Names, brands and terms Handy should spell your way. Models with vocabulary support get the words before transcribing; for all others Handy corrects similar words afterwards. Either way it costs practically no time. The after-the-fact correction currently works with A–Z and digits only."
   }
 }

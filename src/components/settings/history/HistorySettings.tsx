@@ -36,6 +36,7 @@ import { formatDateTime } from "@/utils/dateFormat";
 import { AudioPlayer, AudioPlayerGroup } from "../../ui/AudioPlayer";
 import { Button } from "../../ui/Button";
 import { copyToClipboard } from "./clipboard";
+import { countWords } from "@/lib/stats/words";
 import {
   pickAndTranscribeFiles,
   useFileReadsStore,
@@ -417,6 +418,12 @@ const HistoryEntryComponent: React.FC<HistoryEntryProps> = ({
   cancelTranscription,
 }) => {
   const { t, i18n } = useTranslation();
+  // Fork: words in what was delivered (post-processed text if any).
+  const wordCount = countWords(
+    entry.post_processed_text?.trim()
+      ? entry.post_processed_text
+      : entry.transcription_text,
+  );
   const [showCopied, setShowCopied] = useState(false);
   // Pressed cancel: a running job stops after its current chunk.
   const [cancelling, setCancelling] = useState(false);
@@ -490,6 +497,14 @@ const HistoryEntryComponent: React.FC<HistoryEntryProps> = ({
           <p className="text-[12px] font-medium text-ink-3 shrink-0">
             {formattedDate}
           </p>
+          {wordCount > 0 && (
+            <span
+              className="shrink-0 text-[12px] text-ink-3"
+              style={{ fontVariantNumeric: "tabular-nums" }}
+            >
+              {t("settings.history.wordCount", { count: wordCount })}
+            </span>
+          )}
           {appName && (
             <span
               className="inline-flex min-w-0 items-center gap-1 text-[12px] font-medium text-accent"

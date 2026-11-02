@@ -1,4 +1,5 @@
 // Run with: bun src/lib/stats/insights.test.ts
+import { countWords } from "./words";
 import {
   computeInsights,
   durationParts,
@@ -88,6 +89,16 @@ check("typing faster than speaking", minutesSaved(460, 200) === 0);
   const s = computeInsights([{ timestamp: at(0), words }], now);
   check("progress capped at 1", s.weekGoalProgress === 1, s.weekGoalProgress);
 }
+
+// Word counting matches the Rust rules (dictation_stats.rs).
+check("words: punctuation", countWords("Hallo Welt, wie geht's?") === 4);
+check("words: whitespace", countWords("  spaced   out\nlines\t") === 3);
+check("words: empty", countWords("") === 0 && countWords(null) === 0);
+check("words: punctuation only", countWords("... — !") === 0);
+check(
+  "words: CJK",
+  countWords("你好世界") === 4 && countWords("Handy 很好") === 3,
+);
 
 // Durations switch to hours at 60 minutes.
 check("minutes below an hour", durationParts(42.4).unit === "minutes");
