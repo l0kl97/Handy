@@ -126,3 +126,23 @@ test("widget: live streaming panel", async ({ page }) => {
   await expect(page.locator(".scard.open")).toBeVisible();
   await page.screenshot({ path: "test-results/overlay/4-live.png" });
 });
+
+test("widget stays light-on-dark under the Light theme", async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem("handy.theme", "light"));
+  await mockOverlay(page);
+  await stage(page);
+  await page.evaluate(() => {
+    document.documentElement.dataset.theme = "light";
+  });
+  await emit(page, "show-overlay", "streaming");
+  await emit(page, "recording-ready");
+  await emit(page, "stream-text-event", {
+    committed: "Lesbar auch im hellen Theme",
+    tentative: "",
+  });
+  const text = page.locator(".stext-cap .committed");
+  await expect(text).toBeVisible();
+  // #f5f5f7, the widget ink, not the light theme's near-black text.
+  await expect(text).toHaveCSS("color", "rgb(245, 245, 247)");
+  await page.screenshot({ path: "test-results/overlay/5-light-theme.png" });
+});

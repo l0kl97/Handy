@@ -33,8 +33,6 @@
     color-mix(in srgb, var(--dark-color-accent) 22%, transparent),
     transparent 100%
   );
-  /* Text inside the widget reads light on the dark body. */
-  --color-text: var(--s-ink);
 
   /* Card geometry — single source of truth for the visible overlay sizes. The
      native overlay window (overlay.rs) is sized from these: it must be at least
@@ -49,6 +47,20 @@
   --ov-open-w: 392px; /* Live panel, expanded */
   --ov-base-h: 40px; /* control-row height (.sbase) */
   --ov-cap-max-h: 64px; /* max height of the scrolling live-text region */
+}
+
+/* The widget is always dark, so its text is always light. Matches
+   theme.css's :root[data-theme] specificity so the Light theme cannot turn
+   the transcript near-black. */
+:root,
+:root[data-theme="light"],
+:root[data-theme="dark"] {
+  --color-text: var(--s-ink);
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --color-text: var(--s-ink);
+  }
 }
 /* ============================================================
    Unified overlay stage — one fixed, transparent container shared by the compact
