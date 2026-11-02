@@ -717,7 +717,8 @@
       "showMore": "Afficher plus",
       "showLess": "Afficher moins",
       "dropTitle": "Déposez pour transcrire",
-      "dropDescription": "Il apparaîtra dans l'historique."
+      "dropDescription": "Il apparaîtra dans l'historique.",
+      "appContext": "Dictated into {{app}}"
     },
     "debug": {
       "title": "Débogage",

@@ -717,7 +717,8 @@
       "showMore": "Zobrazit více",
       "showLess": "Zobrazit méně",
       "dropTitle": "Pusťte pro přepis",
-      "dropDescription": "Zobrazí se v historii."
+      "dropDescription": "Zobrazí se v historii.",
+      "appContext": "Dictated into {{app}}"
     },
     "debug": {
       "title": "Ladění",

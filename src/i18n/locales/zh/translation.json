@@ -717,7 +717,8 @@
       "showMore": "显示更多",
       "showLess": "收起",
       "dropTitle": "拖放到此处进行转录",
-      "dropDescription": "它会出现在历史记录中。"
+      "dropDescription": "它会出现在历史记录中。",
+      "appContext": "Dictated into {{app}}"
     },
     "debug": {
       "title": "调试",

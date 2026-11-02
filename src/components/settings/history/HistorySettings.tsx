@@ -17,6 +17,7 @@ import {
   Star,
   Trash2,
   X,
+  AppWindow,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { notify } from "@/stores/noticeStore";
@@ -130,6 +131,23 @@ export const HistorySettings: React.FC = () => {
   const jobs = useTranscriptionJobsStore((state) => state.jobs);
   const reads = useFileReadsStore((state) => state.reads);
   const [entries, setEntries] = useState<HistoryEntry[]>([]);
+  // Fork: which app each dictation went to (history id → app name).
+  const [apps, setApps] = useState<Map<number, string>>(new Map());
+  const loadApps = useCallback(async () => {
+    try {
+      const res = await commands.getDictationApps();
+      if (res?.status === "ok") {
+        setApps(new Map(res.data.map((a) => [a.history_id, a.app_name])));
+      } else {
+        console.warn("Failed to load dictation apps:", res?.error);
+      }
+    } catch (e) {
+      console.warn("Failed to load dictation apps:", e);
+    }
+  }, []);
+  useEffect(() => {
+    loadApps();
+  }, [loadApps]);
   const [loading, setLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
   const sentinelRef = useRef<HTMLDivElement>(null);
@@ -207,6 +225,8 @@ export const HistorySettings: React.FC = () => {
     const unlisten = events.historyUpdatePayload.listen((event) => {
       const payload: HistoryUpdatePayload = event.payload;
       if (payload.action === "added") {
+        // The app is stored right after the entry; fetch it a beat later.
+        setTimeout(loadApps, 400);
         setEntries((prev) => [
           payload.entry,
           ...prev.filter((entry) => entry.id !== payload.entry.id),
@@ -329,6 +349,7 @@ export const HistorySettings: React.FC = () => {
               <HistoryEntryComponent
                 key={entry.id}
                 entry={entry}
+                appName={apps.get(entry.id)}
                 job={jobs[entry.id]}
                 onToggleSaved={() => toggleSaved(entry.id)}
                 onCopyText={() => copyToClipboard(entry.transcription_text)}
@@ -349,12 +370,8 @@ export const HistorySettings: React.FC = () => {
   return (
     <div className="max-w-3xl w-full mx-auto space-y-6">
       <div className="space-y-2">
-        <div className="px-4 flex items-center justify-between">
-          <div>
-            <h2 className="text-[12px] font-medium text-ink-3">
-              {t("settings.history.title")}
-            </h2>
-          </div>
+        {/* The toolbar already names the page; only the actions remain. */}
+        <div className="px-1 flex items-center justify-end">
           <div className="flex items-center gap-2">
             <HeaderButton
               onClick={transcribeFile}
@@ -377,6 +394,8 @@ export const HistorySettings: React.FC = () => {
 
 interface HistoryEntryProps {
   entry: HistoryEntry;
+  /** Fork: the app the dictation went to, if known. */
+  appName?: string;
   job?: ActiveJobStatus;
   onToggleSaved: () => void;
   onCopyText: () => Promise<boolean>;
@@ -388,6 +407,7 @@ interface HistoryEntryProps {
 
 const HistoryEntryComponent: React.FC<HistoryEntryProps> = ({
   entry,
+  appName,
   job,
   onToggleSaved,
   onCopyText,
@@ -470,6 +490,15 @@ const HistoryEntryComponent: React.FC<HistoryEntryProps> = ({
           <p className="text-[12px] font-medium text-ink-3 shrink-0">
             {formattedDate}
           </p>
+          {appName && (
+            <span
+              className="inline-flex min-w-0 items-center gap-1 rounded-full bg-accent/12 px-2 py-[1px] text-[11px] font-medium text-accent"
+              title={t("settings.history.appContext", { app: appName })}
+            >
+              <AppWindow width={11} height={11} className="shrink-0" />
+              <span className="truncate">{appName}</span>
+            </span>
+          )}
           {entry.source_name && (
             <span
               className="flex items-center gap-1 min-w-0 text-sm text-ink-3"

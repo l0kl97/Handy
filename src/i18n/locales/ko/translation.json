@@ -717,7 +717,8 @@
       "showMore": "더 보기",
       "showLess": "간략히 보기",
       "dropTitle": "놓아서 받아쓰기",
-      "dropDescription": "기록에 표시됩니다."
+      "dropDescription": "기록에 표시됩니다.",
+      "appContext": "Dictated into {{app}}"
     },
     "debug": {
       "title": "디버그",

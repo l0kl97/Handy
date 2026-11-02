@@ -717,7 +717,8 @@
       "showMore": "Mostra di più",
       "showLess": "Mostra di meno",
       "dropTitle": "Rilascia per trascrivere",
-      "dropDescription": "Comparirà nella cronologia."
+      "dropDescription": "Comparirà nella cronologia.",
+      "appContext": "Dictated into {{app}}"
     },
     "debug": {
       "title": "Debug",

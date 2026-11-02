@@ -286,6 +286,12 @@ body {
   background: transparent;
 }
 
+:root {
+  /* Native controls (range sliders, checkboxes) use the app accent, never
+     the system blue. */
+  accent-color: var(--color-accent);
+}
+
 ::selection {
   background: color-mix(in srgb, var(--color-accent) 30%, transparent);
 }

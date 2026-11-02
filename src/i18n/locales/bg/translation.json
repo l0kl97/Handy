@@ -717,7 +717,8 @@
       "showMore": "Покажи повече",
       "showLess": "Покажи по-малко",
       "dropTitle": "Пуснете за транскрибиране",
-      "dropDescription": "Ще се появи в Историята."
+      "dropDescription": "Ще се появи в Историята.",
+      "appContext": "Dictated into {{app}}"
     },
     "debug": {
       "title": "Отстраняване",

@@ -87,6 +87,42 @@ async function mockTauri(page: Page, mode: Mode) {
             ];
             return null;
           }
+          if (cmd === "get_history_entries") {
+            const now = Math.floor(Date.now() / 1000);
+            const entry = (id: number, ago: number, text: string) => ({
+              id,
+              file_name: `handy-${id}.wav`,
+              timestamp: now - ago,
+              saved: false,
+              title: "",
+              transcription_text: text,
+              post_processed_text: null,
+              post_process_prompt: null,
+              post_process_requested: false,
+              source_name: null,
+              language: "de",
+              language_source: "selected",
+            });
+            return {
+              entries: [
+                entry(
+                  3,
+                  120,
+                  "Kannst du mir bis morgen das Angebot für Wrenfield schicken?",
+                ),
+                entry(2, 3600, "git commit -m 'fix the overlay width'"),
+                entry(1, 7200, "Notiz ohne bekannte App."),
+              ],
+              has_more: false,
+            };
+          }
+          if (cmd === "get_dictation_apps") {
+            if (w.__HANDY_FAIL_APPS__) throw new Error("db locked");
+            return [
+              { history_id: 3, app_name: "Slack" },
+              { history_id: 2, app_name: "Terminal" },
+            ];
+          }
           if (cmd === "get_dictation_stats") {
             if (w.__HANDY_FAIL_STATS__) throw new Error("db locked");
             // A believable week: ~1,900 words, most of them today.
@@ -284,4 +320,29 @@ test("insights report a failed load instead of breaking", async ({ page }) => {
   await expect(
     page.getByRole("img", { name: /saved this week/i }),
   ).toBeVisible();
+});
+
+test("history shows the app each dictation went to", async ({ page }) => {
+  await mockTauri(page, { theme: "dark", glass: false });
+  await page.setViewportSize({ width: 960, height: 680 });
+  await page.goto("/");
+  await page.locator("nav").getByRole("button", { name: "History" }).click();
+
+  await expect(page.getByText("Kannst du mir bis morgen")).toBeVisible();
+  await expect(page.getByTitle("Dictated into Slack")).toBeVisible();
+  await expect(page.getByTitle("Dictated into Terminal")).toBeVisible();
+  // An entry without a known app shows no pill.
+  await expect(page.getByTitle(/Dictated into/)).toHaveCount(2);
+  await page.screenshot({ path: "test-results/design/history-apps.png" });
+});
+
+test("history still renders when the app context fails", async ({ page }) => {
+  await page.addInitScript(() => {
+    (window as unknown as Record<string, unknown>).__HANDY_FAIL_APPS__ = true;
+  });
+  await mockTauri(page, { theme: "dark", glass: false });
+  await page.goto("/");
+  await page.locator("nav").getByRole("button", { name: "History" }).click();
+  await expect(page.getByText("Kannst du mir bis morgen")).toBeVisible();
+  await expect(page.getByTitle(/Dictated into/)).toHaveCount(0);
 });

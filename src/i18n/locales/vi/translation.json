@@ -717,7 +717,8 @@
       "showMore": "Xem thêm",
       "showLess": "Thu gọn",
       "dropTitle": "Thả để chép lời",
-      "dropDescription": "Nó sẽ xuất hiện trong Lịch sử."
+      "dropDescription": "Nó sẽ xuất hiện trong Lịch sử.",
+      "appContext": "Dictated into {{app}}"
     },
     "debug": {
       "title": "Gỡ lỗi",

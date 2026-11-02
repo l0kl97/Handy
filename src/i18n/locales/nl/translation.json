@@ -717,7 +717,8 @@
       "showMore": "Meer tonen",
       "showLess": "Minder tonen",
       "dropTitle": "Loslaten om te transcriberen",
-      "dropDescription": "Het verschijnt in de geschiedenis."
+      "dropDescription": "Het verschijnt in de geschiedenis.",
+      "appContext": "Dictated into {{app}}"
     },
     "debug": {
       "title": "Probleemoplossing",

@@ -717,7 +717,8 @@
       "showMore": "Visa mer",
       "showLess": "Visa mindre",
       "dropTitle": "Släpp för att transkribera",
-      "dropDescription": "Den visas i historiken."
+      "dropDescription": "Den visas i historiken.",
+      "appContext": "Dictated into {{app}}"
     },
     "debug": {
       "title": "Felsökning",

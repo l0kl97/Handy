@@ -717,7 +717,8 @@
       "showMore": "عرض المزيد",
       "showLess": "عرض أقل",
       "dropTitle": "أفلت الملف لنسخه",
-      "dropDescription": "سيظهر في السجل."
+      "dropDescription": "سيظهر في السجل.",
+      "appContext": "Dictated into {{app}}"
     },
     "debug": {
       "title": "تصحيح الأخطاء",

@@ -717,7 +717,8 @@
       "showMore": "Mostra'n més",
       "showLess": "Mostra'n menys",
       "dropTitle": "Deixa anar per transcriure",
-      "dropDescription": "Apareixerà a l'historial."
+      "dropDescription": "Apareixerà a l'historial.",
+      "appContext": "Dictated into {{app}}"
     },
     "debug": {
       "title": "Depuració",

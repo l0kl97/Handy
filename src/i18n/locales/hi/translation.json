@@ -717,7 +717,8 @@
       "showMore": "और दिखाएँ",
       "showLess": "कम दिखाएँ",
       "dropTitle": "ट्रांसक्राइब करने के लिए छोड़ें",
-      "dropDescription": "यह इतिहास में दिखाई देगा।"
+      "dropDescription": "यह इतिहास में दिखाई देगा।",
+      "appContext": "Dictated into {{app}}"
     },
     "debug": {
       "title": "डिबग",

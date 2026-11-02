@@ -717,7 +717,8 @@
       "showMore": "Показать больше",
       "showLess": "Показать меньше",
       "dropTitle": "Отпустите, чтобы расшифровать",
-      "dropDescription": "Он появится в истории."
+      "dropDescription": "Он появится в истории.",
+      "appContext": "Dictated into {{app}}"
     },
     "debug": {
       "title": "Отлаживать",

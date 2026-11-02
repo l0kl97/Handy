@@ -1,4 +1,5 @@
 pub mod audio;
+pub mod dictation_apps;
 pub mod dictation_stats;
 pub mod gguf_meta;
 pub mod history;

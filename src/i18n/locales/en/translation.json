@@ -717,7 +717,8 @@
       "showMore": "Show more",
       "showLess": "Show less",
       "dropTitle": "Drop to transcribe",
-      "dropDescription": "It'll show up in History."
+      "dropDescription": "It'll show up in History.",
+      "appContext": "Dictated into {{app}}"
     },
     "debug": {
       "title": "Debug",

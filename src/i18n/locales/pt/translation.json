@@ -717,7 +717,8 @@
       "showMore": "Mostrar mais",
       "showLess": "Mostrar menos",
       "dropTitle": "Solte para transcrever",
-      "dropDescription": "Ele aparecerá no histórico."
+      "dropDescription": "Ele aparecerá no histórico.",
+      "appContext": "Dictated into {{app}}"
     },
     "debug": {
       "title": "Depuração",

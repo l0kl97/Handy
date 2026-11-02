@@ -717,7 +717,8 @@
       "showMore": "Daha fazla göster",
       "showLess": "Daha az göster",
       "dropTitle": "Yazıya dökmek için bırakın",
-      "dropDescription": "Geçmiş'te görünecek."
+      "dropDescription": "Geçmiş'te görünecek.",
+      "appContext": "Dictated into {{app}}"
     },
     "debug": {
       "title": "Hata Ayıklama",

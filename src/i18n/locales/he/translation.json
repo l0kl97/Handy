@@ -717,7 +717,8 @@
       "showMore": "הצג עוד",
       "showLess": "הצג פחות",
       "dropTitle": "שחררו כדי לתמלל",
-      "dropDescription": "הוא יופיע בהיסטוריה."
+      "dropDescription": "הוא יופיע בהיסטוריה.",
+      "appContext": "Dictated into {{app}}"
     },
     "debug": {
       "title": "ניפוי שגיאות",

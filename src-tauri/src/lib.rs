@@ -806,6 +806,7 @@ pub fn run(cli_args: CliArgs) {
             commands::transcription::unload_model_manually,
             commands::history::get_history_entries,
             commands::history::get_dictation_stats,
+            commands::history::get_dictation_apps,
             commands::history::toggle_history_entry_saved,
             commands::history::get_audio_file_path,
             commands::history::delete_history_entry,

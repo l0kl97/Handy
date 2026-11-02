@@ -717,7 +717,8 @@
       "showMore": "Vis mere",
       "showLess": "Vis mindre",
       "dropTitle": "Slip for at transskribere",
-      "dropDescription": "Den vises i historikken."
+      "dropDescription": "Den vises i historikken.",
+      "appContext": "Dictated into {{app}}"
     },
     "debug": {
       "title": "Fejlfinding",

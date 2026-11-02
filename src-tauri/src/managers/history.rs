@@ -188,6 +188,9 @@ impl HistoryManager {
         if let Err(e) = super::dictation_stats::ensure_table(conn) {
             warn!("Dictation stats unavailable: {e}");
         }
+        if let Err(e) = super::dictation_apps::ensure_table(conn) {
+            warn!("Dictation app context unavailable: {e}");
+        }
 
         Ok(())
     }
@@ -297,6 +300,24 @@ impl HistoryManager {
         }
     }
 
+    /// Fork: store the frontmost app for a new dictation; warn-only.
+    fn record_dictation_app(&self, history_id: i64) {
+        let Some((name, bundle)) = super::dictation_apps::frontmost_app() else {
+            return;
+        };
+        if let Err(e) = self.get_connection().and_then(|conn| {
+            super::dictation_apps::record_with_conn(&conn, history_id, &name, bundle.as_deref())
+        }) {
+            warn!("Failed to record dictation app: {e}");
+        }
+    }
+
+    /// Fork: the app each dictation went to (see dictation_apps).
+    pub fn get_dictation_apps(&self) -> Result<Vec<super::dictation_apps::DictationApp>> {
+        let conn = self.get_connection()?;
+        super::dictation_apps::all_with_conn(&conn)
+    }
+
     /// Fork: every dictation's word count, oldest first (see dictation_stats).
     pub fn get_dictation_words(&self) -> Result<Vec<super::dictation_stats::DictationWords>> {
         let conn = self.get_connection()?;
@@ -334,8 +355,10 @@ impl HistoryManager {
             language_source,
         })?;
 
-        // Fork: count the words for the stats before pruning can drop the entry.
+        // Fork: count the words for the stats before pruning can drop the entry,
+        // and remember which app the text went to.
         self.record_dictation_stats(&entry);
+        self.record_dictation_app(entry.id);
 
         self.cleanup_old_entries()?;
 

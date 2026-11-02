@@ -717,7 +717,8 @@
       "showMore": "Mehr anzeigen",
       "showLess": "Weniger anzeigen",
       "dropTitle": "Zum Transkribieren ablegen",
-      "dropDescription": "Es erscheint im Verlauf."
+      "dropDescription": "Es erscheint im Verlauf.",
+      "appContext": "Diktiert in {{app}}"
     },
     "debug": {
       "title": "Debug",

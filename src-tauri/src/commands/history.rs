@@ -20,6 +20,17 @@ pub async fn get_history_entries(
         .map_err(|e| e.to_string())
 }
 
+/// Fork: the app each dictation went to (Terminal, Slack, …), for history.
+#[tauri::command]
+#[specta::specta]
+pub async fn get_dictation_apps(
+    history_manager: State<'_, Arc<HistoryManager>>,
+) -> Result<Vec<crate::managers::dictation_apps::DictationApp>, String> {
+    history_manager
+        .get_dictation_apps()
+        .map_err(|e| e.to_string())
+}
+
 /// Fork: word counts of every dictation, for the time-saved insights.
 #[tauri::command]
 #[specta::specta]

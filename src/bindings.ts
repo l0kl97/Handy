@@ -974,6 +974,17 @@ async getDictationStats() : Promise<Result<DictationWords[], string>> {
     else return { status: "error", error: e  as any };
 }
 },
+/**
+ * Fork: the app each dictation went to (Terminal, Slack, …), for history.
+ */
+async getDictationApps() : Promise<Result<DictationApp[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_dictation_apps") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
 async toggleHistoryEntrySaved(id: number) : Promise<Result<null, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("toggle_history_entry_saved", { id }) };
@@ -1230,6 +1241,10 @@ export type ChineseScript =
 "traditional_hk"
 export type ClipboardHandling = "dont_modify" | "copy_to_clipboard"
 export type CustomSounds = { start: boolean; stop: boolean }
+/**
+ * The app a history entry was dictated into.
+ */
+export type DictationApp = { history_id: number; app_name: string }
 /**
  * One dictation's word count at a moment (Unix seconds, UTC).
  */
