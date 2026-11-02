@@ -363,10 +363,21 @@ body {
   -webkit-backdrop-filter: blur(18px) saturate(150%);
 }
 
+/* Reduce transparency (macOS accessibility): keep the glass layout but make
+   every layer opaque and drop the blurs. */
 @media (prefers-reduced-transparency: reduce) {
   :root[data-glass="on"] {
     --canvas-alpha: 100%;
     --bg-alpha: 100%;
     --surface-alpha: 100%;
+  }
+  :root[data-glass="on"] .glass-pane {
+    background: var(--color-surface);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  :root[data-glass="on"] .glass-card {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
 }

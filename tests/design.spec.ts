@@ -220,3 +220,24 @@ test("glass rolls back when the settings write fails", async ({ page }) => {
     "0",
   );
 });
+
+test("reduce transparency makes the glass layers opaque", async ({ page }) => {
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send("Emulation.setEmulatedMedia", {
+    features: [{ name: "prefers-reduced-transparency", value: "reduce" }],
+  });
+  await mockTauri(page, { theme: "dark", glass: true });
+  await page.goto("/");
+  await expect(page.locator("html")).toHaveAttribute("data-glass", "on");
+
+  const nav = page.locator("nav");
+  await expect(nav).toHaveCSS("backdrop-filter", "none");
+  const navBg = await nav.evaluate(
+    (el) => getComputedStyle(el).backgroundColor,
+  );
+  // An opaque colour: rgb(...) or an rgba with alpha 1.
+  expect(navBg).toMatch(/^rgb\(|, 1\)$/);
+
+  const card = page.locator(".glass-card").first();
+  await expect(card).toHaveCSS("backdrop-filter", "none");
+});
