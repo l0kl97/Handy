@@ -13,6 +13,7 @@
     "otherLanguages": "其他語言"
   },
   "sidebar": {
+    "insights": "Insights",
     "general": "一般",
     "models": "模型",
     "advanced": "進階",
@@ -992,5 +993,35 @@
     "learnMore": "如何解決",
     "recorderBlocked": "目前無法錄製快捷鍵——macOS 的 Secure Input 正在阻擋按鍵事件。請先解決 Secure Input 警告。",
     "dismiss": "關閉"
+  },
+  "insights": {
+    "title": "Insights",
+    "gauge": {
+      "title": "Time saved",
+      "label": "Saved this week",
+      "goal": "Goal {{value}} min",
+      "onTrack": "On the way",
+      "reached": "Goal reached",
+      "aria": "{{value}} {{unit}} saved this week, goal {{goal}} minutes"
+    },
+    "tiles": {
+      "words": "Words dictated",
+      "dictations": "Dictations",
+      "total": "Saved overall"
+    },
+    "chart": {
+      "title": "Last 7 days",
+      "today_one": "{{count}} word today",
+      "today_other": "{{count}} words today",
+      "bar_one": "{{day}}: {{count}} word",
+      "bar_other": "{{day}}: {{count}} words"
+    },
+    "units": {
+      "minutes": "min",
+      "hours": "h"
+    },
+    "assumption": "Estimate: typing about {{typing}} words per minute vs. speaking about {{speaking}}.",
+    "empty": "Dictate something and your time saved shows up here.",
+    "error": "Couldn't load your stats."
   }
 }

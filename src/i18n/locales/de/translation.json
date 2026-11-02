@@ -13,6 +13,7 @@
     "otherLanguages": "Weitere Sprachen"
   },
   "sidebar": {
+    "insights": "Statistik",
     "general": "Allgemein",
     "models": "Modelle",
     "advanced": "Erweitert",
@@ -992,5 +993,35 @@
     "learnMore": "So behebst du das",
     "recorderBlocked": "Tastenkürzel können gerade nicht aufgezeichnet werden — macOS Secure Input blockiert Tastenereignisse. Behebe zuerst die Secure-Input-Warnung.",
     "dismiss": "Ausblenden"
+  },
+  "insights": {
+    "title": "Statistik",
+    "gauge": {
+      "title": "Zeit gespart",
+      "label": "Diese Woche gespart",
+      "goal": "Ziel {{value}} Min.",
+      "onTrack": "Auf dem Weg",
+      "reached": "Ziel erreicht",
+      "aria": "Diese Woche {{value}} {{unit}} gespart, Ziel {{goal}} Minuten"
+    },
+    "tiles": {
+      "words": "Wörter diktiert",
+      "dictations": "Diktate",
+      "total": "Insgesamt gespart"
+    },
+    "chart": {
+      "title": "Letzte 7 Tage",
+      "today_one": "Heute {{count}} Wort",
+      "today_other": "Heute {{count}} Wörter",
+      "bar_one": "{{day}}: {{count}} Wort",
+      "bar_other": "{{day}}: {{count}} Wörter"
+    },
+    "units": {
+      "minutes": "Min.",
+      "hours": "Std."
+    },
+    "assumption": "Schätzung: tippen etwa {{typing}} Wörter pro Minute, sprechen etwa {{speaking}}.",
+    "empty": "Diktiere etwas, dann siehst du hier, wie viel Zeit du sparst.",
+    "error": "Statistik konnte nicht geladen werden."
   }
 }

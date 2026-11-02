@@ -13,6 +13,7 @@
     "otherLanguages": "Další jazyky"
   },
   "sidebar": {
+    "insights": "Insights",
     "general": "Obecné",
     "models": "Modely",
     "advanced": "Pokročilé",
@@ -992,5 +993,35 @@
     "learnMore": "Jak to vyřešit",
     "recorderBlocked": "Zkratky teď nelze nahrát — Secure Input v macOS blokuje události kláves. Nejprve vyřešte upozornění na Secure Input.",
     "dismiss": "Zavřít"
+  },
+  "insights": {
+    "title": "Insights",
+    "gauge": {
+      "title": "Time saved",
+      "label": "Saved this week",
+      "goal": "Goal {{value}} min",
+      "onTrack": "On the way",
+      "reached": "Goal reached",
+      "aria": "{{value}} {{unit}} saved this week, goal {{goal}} minutes"
+    },
+    "tiles": {
+      "words": "Words dictated",
+      "dictations": "Dictations",
+      "total": "Saved overall"
+    },
+    "chart": {
+      "title": "Last 7 days",
+      "today_one": "{{count}} word today",
+      "today_other": "{{count}} words today",
+      "bar_one": "{{day}}: {{count}} word",
+      "bar_other": "{{day}}: {{count}} words"
+    },
+    "units": {
+      "minutes": "min",
+      "hours": "h"
+    },
+    "assumption": "Estimate: typing about {{typing}} words per minute vs. speaking about {{speaking}}.",
+    "empty": "Dictate something and your time saved shows up here.",
+    "error": "Couldn't load your stats."
   }
 }

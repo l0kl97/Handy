@@ -13,6 +13,7 @@
     "otherLanguages": "기타 언어"
   },
   "sidebar": {
+    "insights": "Insights",
     "general": "일반",
     "models": "모델",
     "advanced": "고급",
@@ -992,5 +993,35 @@
     "learnMore": "해결 방법",
     "recorderBlocked": "지금은 단축키를 등록할 수 없습니다. macOS Secure Input이 키 이벤트를 차단하고 있습니다. Secure Input 경고를 먼저 해결하세요.",
     "dismiss": "닫기"
+  },
+  "insights": {
+    "title": "Insights",
+    "gauge": {
+      "title": "Time saved",
+      "label": "Saved this week",
+      "goal": "Goal {{value}} min",
+      "onTrack": "On the way",
+      "reached": "Goal reached",
+      "aria": "{{value}} {{unit}} saved this week, goal {{goal}} minutes"
+    },
+    "tiles": {
+      "words": "Words dictated",
+      "dictations": "Dictations",
+      "total": "Saved overall"
+    },
+    "chart": {
+      "title": "Last 7 days",
+      "today_one": "{{count}} word today",
+      "today_other": "{{count}} words today",
+      "bar_one": "{{day}}: {{count}} word",
+      "bar_other": "{{day}}: {{count}} words"
+    },
+    "units": {
+      "minutes": "min",
+      "hours": "h"
+    },
+    "assumption": "Estimate: typing about {{typing}} words per minute vs. speaking about {{speaking}}.",
+    "empty": "Dictate something and your time saved shows up here.",
+    "error": "Couldn't load your stats."
   }
 }

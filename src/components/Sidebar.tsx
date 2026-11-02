@@ -1,6 +1,14 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { Cog, FlaskConical, History, Info, Sparkles, Cpu } from "lucide-react";
+import {
+  Cog,
+  FlaskConical,
+  Gauge,
+  History,
+  Info,
+  Sparkles,
+  Cpu,
+} from "lucide-react";
 import HandyHand from "./icons/HandyHand";
 import { useSettings } from "../hooks/useSettings";
 import {
@@ -11,6 +19,7 @@ import {
   PostProcessingSettings,
   ModelsSettings,
 } from "./settings";
+import { InsightsPage } from "./insights/InsightsPage";
 
 export type SidebarSection = keyof typeof SECTIONS_CONFIG;
 
@@ -31,6 +40,12 @@ interface SectionConfig {
 }
 
 export const SECTIONS_CONFIG = {
+  insights: {
+    labelKey: "sidebar.insights",
+    icon: Gauge,
+    component: InsightsPage,
+    enabled: () => true,
+  },
   general: {
     labelKey: "sidebar.general",
     icon: HandyHand,

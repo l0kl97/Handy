@@ -20,6 +20,17 @@ pub async fn get_history_entries(
         .map_err(|e| e.to_string())
 }
 
+/// Fork: word counts of every dictation, for the time-saved insights.
+#[tauri::command]
+#[specta::specta]
+pub async fn get_dictation_stats(
+    history_manager: State<'_, Arc<HistoryManager>>,
+) -> Result<Vec<crate::managers::dictation_stats::DictationWords>, String> {
+    history_manager
+        .get_dictation_words()
+        .map_err(|e| e.to_string())
+}
+
 #[tauri::command]
 #[specta::specta]
 pub async fn toggle_history_entry_saved(

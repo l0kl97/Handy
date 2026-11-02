@@ -183,6 +183,9 @@ impl HistoryManager {
             }
         }
 
+        // Fork: lifetime dictation stats (own table, not a numbered migration).
+        super::dictation_stats::ensure_table(conn)?;
+
         Ok(())
     }
 
@@ -275,6 +278,12 @@ impl HistoryManager {
         })
     }
 
+    /// Fork: every dictation's word count, oldest first (see dictation_stats).
+    pub fn get_dictation_words(&self) -> Result<Vec<super::dictation_stats::DictationWords>> {
+        let conn = self.get_connection()?;
+        super::dictation_stats::all_with_conn(&conn)
+    }
+
     pub fn recordings_dir(&self) -> &std::path::Path {
         &self.recordings_dir
     }
@@ -305,6 +314,17 @@ impl HistoryManager {
             language,
             language_source,
         })?;
+
+        // Fork: count the words for the stats before pruning can drop the entry.
+        let words = super::dictation_stats::count_words(super::dictation_stats::delivered_text(
+            &entry.transcription_text,
+            entry.post_processed_text.as_deref(),
+        ));
+        if let Err(e) = self.get_connection().and_then(|conn| {
+            super::dictation_stats::record_with_conn(&conn, entry.timestamp, words)
+        }) {
+            warn!("Failed to record dictation stats: {e}");
+        }
 
         self.cleanup_old_entries()?;
 

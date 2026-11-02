@@ -87,6 +87,21 @@ async function mockTauri(page: Page, mode: Mode) {
             ];
             return null;
           }
+          if (cmd === "get_dictation_stats") {
+            if (w.__HANDY_FAIL_STATS__) throw new Error("db locked");
+            // A believable week: ~1,900 words, most of them today.
+            const day = 86400;
+            const t = Math.floor(Date.now() / 1000) - 60;
+            return [
+              { timestamp: t - 6 * day, words: 180 },
+              { timestamp: t - 4 * day, words: 320 },
+              { timestamp: t - 3 * day, words: 95 },
+              { timestamp: t - 2 * day, words: 410 },
+              { timestamp: t - 1 * day, words: 260 },
+              { timestamp: t - 300, words: 420 },
+              { timestamp: t, words: 240 },
+            ];
+          }
           if (cmd.startsWith("plugin:macos-permissions")) return true;
           if (cmd === "plugin:app|version") return "0.10.0";
           if (cmd.startsWith("plugin:event|listen")) return ++cb;
@@ -240,4 +255,33 @@ test("reduce transparency makes the glass layers opaque", async ({ page }) => {
 
   const card = page.locator(".glass-card").first();
   await expect(card).toHaveCSS("backdrop-filter", "none");
+});
+
+test("insights show time saved, tiles and the week", async ({ page }) => {
+  await mockTauri(page, { theme: "dark", glass: false });
+  await page.setViewportSize({ width: 960, height: 760 });
+  await page.goto("/");
+
+  // Insights is the landing page.
+  const gauge = page.getByRole("img", { name: /saved this week/i });
+  await expect(gauge).toBeVisible();
+  // 1,925 words this week → 1925/40 − 1925/150 ≈ 35 minutes.
+  await expect(gauge).toHaveAttribute("aria-label", /^35 min/);
+  await expect(page.getByText("1,925")).toBeVisible();
+  await expect(page.getByRole("listitem")).toHaveCount(7);
+  await expect(page.getByRole("alert")).toHaveCount(0);
+  await page.screenshot({ path: "test-results/design/insights-dark.png" });
+});
+
+test("insights report a failed load instead of breaking", async ({ page }) => {
+  await page.addInitScript(() => {
+    (window as unknown as Record<string, unknown>).__HANDY_FAIL_STATS__ = true;
+  });
+  await mockTauri(page, { theme: "dark", glass: false });
+  await page.goto("/");
+  await expect(page.getByRole("alert")).toBeVisible();
+  // Still renders an empty gauge rather than nothing.
+  await expect(
+    page.getByRole("img", { name: /saved this week/i }),
+  ).toBeVisible();
 });
