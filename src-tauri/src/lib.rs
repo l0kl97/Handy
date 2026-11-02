@@ -1016,7 +1016,7 @@ pub fn run(cli_args: CliArgs) {
                 win_builder = win_builder
                     .title_bar_style(tauri::TitleBarStyle::Overlay)
                     .hidden_title(true)
-                    .traffic_light_position(tauri::LogicalPosition::new(18.0, 22.0))
+                    .traffic_light_position(tauri::LogicalPosition::new(18.0, 26.0))
                     .transparent(true);
             }
 

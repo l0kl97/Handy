@@ -7,10 +7,11 @@
   /* The widget is always dark — a premium "instrument" pill in the Profound
      style, whatever the app theme. Liquid-glass treatment: a deep translucent
      body, a bright rim along the top edge and a faint accent bloom below. */
+  /* Body in the main app's dark greys (surface → background). */
   --s-surface: linear-gradient(
     180deg,
-    rgba(34, 34, 38, 0.94) 0%,
-    rgba(12, 12, 14, 0.96) 100%
+    rgba(30, 30, 33, 0.97) 0%,
+    rgba(20, 20, 21, 0.97) 100%
   );
   --s-ink: #f5f5f7;
   /* Live bars: white, the accent marks "listening". */
@@ -23,14 +24,13 @@
   );
   --s-muted: #a8a8ad;
   --s-faint: #86868b;
-  --s-border: rgba(255, 255, 255, 0.1);
+  --s-border: rgba(255, 255, 255, 0.08);
   --s-hair: rgba(255, 255, 255, 0.08);
-  --s-rim:
-    inset 0 1px 0 rgba(255, 255, 255, 0.14),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.03);
+  --s-rim: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  /* A barely-there warm floor; the live ember does the rest. */
   --s-bloom: radial-gradient(
-    70% 22px at 50% 100%,
-    color-mix(in srgb, var(--dark-color-accent) 22%, transparent),
+    60% 18px at 50% 100%,
+    color-mix(in srgb, var(--dark-color-accent) 7%, transparent),
     transparent 100%
   );
 
@@ -44,7 +44,7 @@
   --ov-pill-w: 184px; /* base width / Live pill before it opens or collapses */
   --ov-work-w: 216px; /* working pill (transcribing / polishing) -- wide enough to
                          center longer labels; shared by Live (collapsed) + minimal */
-  --ov-open-w: 392px; /* Live panel, expanded */
+  --ov-open-w: 440px; /* Live panel, expanded */
   --ov-base-h: 40px; /* control-row height (.sbase) */
   --ov-cap-max-h: 64px; /* max height of the scrolling live-text region */
 }
@@ -508,60 +508,70 @@
 .scard::before {
   content: "";
   position: absolute;
-  inset: -40%;
+  inset: -30% -20%;
   z-index: 0;
   pointer-events: none;
-  background:
-    radial-gradient(
-      28% 60% at 30% 62%,
-      color-mix(in srgb, var(--s-accent) 70%, transparent),
-      transparent 70%
-    ),
-    radial-gradient(
-      26% 55% at 68% 58%,
-      rgba(255, 96, 32, 0.55),
-      transparent 70%
-    ),
-    radial-gradient(
-      30% 50% at 50% 30%,
-      rgba(70, 110, 255, 0.22),
-      transparent 70%
-    );
-  filter: blur(14px);
+  /* One soft amber ember rising from the floor of the pill. */
+  background: radial-gradient(
+    38% 70% at 50% 105%,
+    color-mix(in srgb, var(--s-accent) 55%, transparent),
+    transparent 72%
+  );
+  filter: blur(18px);
   opacity: 0;
-  transform: scale(1);
-  transition: opacity 260ms ease;
+  transition: opacity 320ms ease;
 }
 .scard.live::before {
-  /* Quiet: a faint ember. Speaking: the glow swells with the voice. */
-  opacity: calc(0.16 + var(--energy, 0) * 0.7);
-  transform: scale(calc(1 + var(--energy, 0) * 0.08));
-  transition:
-    opacity 140ms linear,
-    transform 140ms linear;
-  animation: s-drift 7s ease-in-out infinite alternate;
+  /* Quiet: almost nothing. Speaking: a gentle warm swell. */
+  opacity: calc(0.06 + var(--energy, 0) * 0.2);
+  transition: opacity 180ms linear;
+  animation: s-drift 9s ease-in-out infinite alternate;
 }
 @keyframes s-drift {
-  0% {
-    translate: -14% 0;
-    rotate: -4deg;
+  from {
+    translate: -6% 0;
   }
-  50% {
-    translate: 6% -4%;
-    rotate: 3deg;
-  }
-  100% {
-    translate: 14% 2%;
-    rotate: -2deg;
+  to {
+    translate: 6% 0;
   }
 }
 /* The "listening" dot glows in the accent while live. */
 .scard.live .sdot.ready {
-  box-shadow: 0 0 calc(6px + var(--energy, 0) * 10px) var(--s-accent);
+  box-shadow: 0 0 calc(3px + var(--energy, 0) * 6px)
+    color-mix(in srgb, var(--s-accent) 70%, transparent);
 }
 @media (prefers-reduced-motion: reduce) {
   .scard.live::before {
     animation: none;
-    transform: none;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Glass (same setting as the app): Liquid Glass material language —   */
+/* a translucent body, a specular rim and a soft top sheen.            */
+/* ------------------------------------------------------------------ */
+:root[data-glass="on"] .scard {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.1) 0%,
+      rgba(255, 255, 255, 0.025) 42%,
+      transparent 100%
+    ),
+    var(--s-bloom), rgba(24, 24, 27, 0.66);
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.24),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
+    inset 1px 0 0 rgba(255, 255, 255, 0.04),
+    inset -1px 0 0 rgba(255, 255, 255, 0.04);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(24px) saturate(180%);
+}
+@media (prefers-reduced-transparency: reduce) {
+  :root[data-glass="on"] .scard {
+    background: var(--s-bloom), var(--s-surface);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 }

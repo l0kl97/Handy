@@ -76,7 +76,7 @@ const voice = (gain: number) =>
   Array.from({ length: 16 }, (_, i) => Math.max(0, gain - i * 0.04));
 
 async function stage(page: Page) {
-  await page.setViewportSize({ width: 400, height: 140 });
+  await page.setViewportSize({ width: 448, height: 140 });
   await page.goto("/src/overlay/index.html");
   // A dark desktop behind the transparent overlay window.
   await page.addStyleTag({
@@ -145,4 +145,37 @@ test("widget stays light-on-dark under the Light theme", async ({ page }) => {
   // #f5f5f7, the widget ink, not the light theme's near-black text.
   await expect(text).toHaveCSS("color", "rgb(245, 245, 247)");
   await page.screenshot({ path: "test-results/overlay/5-light-theme.png" });
+});
+
+test("widget wears the glass material when glass is on", async ({ page }) => {
+  await mockOverlay(page);
+  await stage(page);
+  await emit(page, "show-overlay", "streaming");
+  await emit(page, "recording-ready");
+  await emit(page, "stream-text-event", {
+    committed: "Glas auch im Widget, wenn es in der App an ist",
+    tentative: "",
+  });
+  const card = page.locator(".scard");
+  await expect(card).toHaveCSS("backdrop-filter", "none");
+
+  // Toggling the setting in the app reaches the overlay live.
+  await emit(page, "settings-changed", {
+    setting: "glass_effect",
+    value: true,
+  });
+  await expect(page.locator("html")).toHaveAttribute("data-glass", "on");
+  await expect(card).toHaveCSS("backdrop-filter", /blur\(24px\)/);
+  // The live panel is the wider 440px form (border included).
+  await expect(card).toHaveCSS("width", "440px");
+  await page.setViewportSize({ width: 448, height: 140 });
+  for (let i = 0; i < 10; i++) await emit(page, "mic-level", voice(0.6));
+  await page.waitForTimeout(500);
+  await page.screenshot({ path: "test-results/overlay/6-glass-live.png" });
+
+  await emit(page, "settings-changed", {
+    setting: "glass_effect",
+    value: false,
+  });
+  await expect(page.locator("html")).not.toHaveAttribute("data-glass");
 });
