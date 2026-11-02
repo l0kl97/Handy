@@ -580,6 +580,7 @@
           "min5": "Al cap de 5 minuts",
           "min10": "Al cap de 10 minuts",
           "min15": "Al cap de 15 minuts",
+          "min30": "After 30 minutes",
           "hour1": "Al cap d'1 hora",
           "sec15": "Al cap de 15 segons (depuració)"
         }

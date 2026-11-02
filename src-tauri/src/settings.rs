@@ -155,6 +155,8 @@ pub enum ModelUnloadTimeout {
     Min5,
     Min10,
     Min15,
+    /// Fork: keep the model warm a little longer.
+    Min30,
     Hour1,
     Sec15, // Debug mode only
 }
@@ -266,6 +268,7 @@ impl ModelUnloadTimeout {
             ModelUnloadTimeout::Min5 => Some(5),
             ModelUnloadTimeout::Min10 => Some(10),
             ModelUnloadTimeout::Min15 => Some(15),
+            ModelUnloadTimeout::Min30 => Some(30),
             ModelUnloadTimeout::Hour1 => Some(60),
             ModelUnloadTimeout::Sec15 => Some(0), // Special case for debug - handled separately
         }
@@ -1437,6 +1440,19 @@ pub fn get_recording_retention_period(app: &AppHandle) -> RecordingRetentionPeri
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn unload_after_30_minutes_round_trips() {
+        let timeout: ModelUnloadTimeout = serde_json::from_str("\"min30\"").unwrap();
+        assert_eq!(timeout, ModelUnloadTimeout::Min30);
+        assert_eq!(timeout.to_seconds(), Some(30 * 60));
+        assert_eq!(serde_json::to_string(&timeout).unwrap(), "\"min30\"");
+        // The existing values keep their stored spelling.
+        assert_eq!(
+            serde_json::to_string(&ModelUnloadTimeout::Min15).unwrap(),
+            "\"min15\""
+        );
+    }
+
     use super::*;
 
     #[test]

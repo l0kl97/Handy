@@ -580,6 +580,7 @@
           "min5": "Na 5 minuten",
           "min10": "Na 10 minuten",
           "min15": "Na 15 minuten",
+          "min30": "After 30 minutes",
           "hour1": "Na 1 uur",
           "sec15": "Na 15 seconden (Debug)"
         }

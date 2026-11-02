@@ -580,6 +580,7 @@
           "min5": "Setelah 5 menit",
           "min10": "Setelah 10 menit",
           "min15": "Setelah 15 menit",
+          "min30": "After 30 minutes",
           "hour1": "Setelah 1 jam",
           "sec15": "Setelah 15 detik (Debug)"
         }

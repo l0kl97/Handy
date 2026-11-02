@@ -580,6 +580,7 @@
           "min5": "5 dakika sonra",
           "min10": "10 dakika sonra",
           "min15": "15 dakika sonra",
+          "min30": "After 30 minutes",
           "hour1": "1 saat sonra",
           "sec15": "15 saniye sonra (Debug)"
         }

@@ -580,6 +580,7 @@
           "min5": "Efter 5 minutter",
           "min10": "Efter 10 minutter",
           "min15": "Efter 15 minutter",
+          "min30": "After 30 minutes",
           "hour1": "Efter 1 time",
           "sec15": "Efter 15 sekunder (fejlfinding)"
         }

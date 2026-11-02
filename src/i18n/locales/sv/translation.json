@@ -580,6 +580,7 @@
           "min5": "Efter 5 minuter",
           "min10": "Efter 10 minuter",
           "min15": "Efter 15 minuter",
+          "min30": "After 30 minutes",
           "hour1": "Efter 1 timme",
           "sec15": "Efter 15 sekunder (Felsökning)"
         }
