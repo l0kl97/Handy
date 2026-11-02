@@ -502,6 +502,9 @@ pub struct AppSettings {
     pub app_language: String,
     #[serde(default = "default_theme")]
     pub theme: Theme,
+    /// macOS: translucent vibrancy material behind the main window.
+    #[serde(default)]
+    pub glass_effect: bool,
     #[serde(default)]
     pub experimental_enabled: bool,
     #[serde(default)]
@@ -1045,6 +1048,7 @@ pub fn get_default_settings() -> AppSettings {
         append_trailing_space: false,
         app_language: default_app_language(),
         theme: default_theme(),
+        glass_effect: false,
         experimental_enabled: false,
         lazy_stream_close: false,
         airpods_mode: false,

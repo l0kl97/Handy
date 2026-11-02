@@ -58,7 +58,7 @@
   background: var(--color-demo-window);
   box-shadow:
     0 0 0 0.5px var(--color-line),
-    0 14px 40px rgb(40 20 50 / 0.16);
+    0 14px 40px rgb(0 0 0 / 0.16);
   cursor: text;
 }
 .try-screen[data-os="win"] .try-notes {

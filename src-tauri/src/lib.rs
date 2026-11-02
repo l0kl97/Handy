@@ -691,6 +691,7 @@ pub fn run(cli_args: CliArgs) {
             shortcut::change_sound_theme_setting,
             shortcut::change_theme_setting,
             shortcut::change_start_hidden_setting,
+            shortcut::change_glass_effect_setting,
             shortcut::change_autostart_setting,
             shortcut::change_translate_to_english_setting,
             shortcut::change_selected_language_setting,
@@ -1004,6 +1005,19 @@ pub fn run(cli_args: CliArgs) {
                     .resizable(true)
                     .maximizable(true)
                     .visible(false);
+
+            // macOS: content runs under an inset title bar (traffic lights over
+            // the sidebar) and the window is transparent so the optional glass
+            // effect can show the vibrancy material. The CSS paints an opaque
+            // background whenever glass is off.
+            #[cfg(target_os = "macos")]
+            {
+                win_builder = win_builder
+                    .title_bar_style(tauri::TitleBarStyle::Overlay)
+                    .hidden_title(true)
+                    .traffic_light_position(tauri::LogicalPosition::new(18.0, 22.0))
+                    .transparent(true);
+            }
 
             if let Some(data_dir) = portable::data_dir() {
                 win_builder = win_builder.data_directory(data_dir.join("webview"));

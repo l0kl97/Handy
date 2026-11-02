@@ -186,7 +186,7 @@
   background: var(--color-demo-window);
   box-shadow:
     0 0 0 0.5px var(--color-line),
-    0 10px 30px rgb(40 20 50 / 0.16);
+    0 10px 30px rgb(0 0 0 / 0.16);
 }
 .demo-screen:has(.is-task) .demo-app {
   top: 20px;

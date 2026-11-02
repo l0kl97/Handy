@@ -973,6 +973,10 @@
       "dark": "어둡게"
     }
   },
+  "glass": {
+    "title": "Glass Effect",
+    "description": "Let the desktop shine through the window with macOS's translucent vibrancy material"
+  },
   "overlay": {
     "transcribing": "텍스트로 변환 중...",
     "processing": "처리 중...",

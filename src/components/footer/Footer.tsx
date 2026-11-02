@@ -28,8 +28,8 @@ const Footer: React.FC<FooterProps> = ({ onShowHistory }) => {
   }, []);
 
   return (
-    <div className="w-full border-t border-line pt-3">
-      <div className="flex justify-between items-center text-xs px-4 pb-3 text-ink-2">
+    <div className="w-full shrink-0 border-t border-line">
+      <div className="flex justify-between items-center h-11 text-xs px-8 text-ink-3">
         <div className="flex items-center gap-4">
           <ModelSelector />
           <TranscriptionStatus onShowHistory={onShowHistory} />
@@ -39,9 +39,11 @@ const Footer: React.FC<FooterProps> = ({ onShowHistory }) => {
           {/* Update Status */}
           <div className="flex items-center gap-1">
             <UpdateChecker />
-            <span>•</span>
+            <span className="text-line-strong">·</span>
             {/* eslint-disable-next-line i18next/no-literal-string */}
-            <span>v{version}</span>
+            <span className="font-mono text-[11px] tracking-tight">
+              v{version}
+            </span>
           </div>
           <NoticeChip />
         </div>

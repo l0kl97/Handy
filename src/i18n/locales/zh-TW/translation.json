@@ -973,6 +973,10 @@
       "dark": "深色"
     }
   },
+  "glass": {
+    "title": "Glass Effect",
+    "description": "Let the desktop shine through the window with macOS's translucent vibrancy material"
+  },
   "overlay": {
     "transcribing": "正在轉錄...",
     "processing": "處理中...",

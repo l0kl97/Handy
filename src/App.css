@@ -25,6 +25,12 @@
   --color-ink-3: var(--color-ink-3);
   --color-line: var(--color-line);
   --color-line-strong: var(--color-line-strong);
+  --color-canvas: var(--color-canvas);
+  --color-surface: var(--color-surface);
+  --color-surface-2: var(--color-surface-2);
+  --color-accent: var(--color-accent);
+  --color-on-accent: var(--color-on-accent);
+  --shadow-card: var(--shadow-card);
 }
 
 /* Noto Sans CJK subset (see src/lib/utils/cjkFont.ts): Windows' CJK fonts
@@ -40,7 +46,7 @@
    Names avoid Tailwind's defaults, which Settings still uses. */
 @theme {
   --font-display:
-    ui-rounded, "SF Pro Rounded", system-ui, -apple-system,
+    "SF Pro Display", system-ui, -apple-system, "Inter",
     "Segoe UI Variable Display", "Segoe UI", sans-serif;
   --font-ui:
     system-ui, -apple-system, "Segoe UI Variable Text", "Segoe UI", Roboto,
@@ -198,9 +204,10 @@
      block (matching other surfaces); the dark theme overrides it below. */
   --color-log-surface: color-mix(in srgb, var(--color-background), black 6%);
 
-  /* Apply colors */
+  /* Apply colors. The window base is the canvas; with glass on it is clear
+     and the native vibrancy material shows through. */
   color: var(--color-text);
-  background-color: var(--color-background);
+  background-color: var(--color-canvas);
 
   /* Without this, Windows draws a <select> popup white under light text. */
   color-scheme: light dark;
@@ -269,4 +276,51 @@
   fill: var(--color-wordmark-stroke);
   stroke: var(--color-wordmark-stroke);
   stroke-width: 1;
+}
+
+/* ------------------------------------------------------------------ */
+/* Premium layer                                                       */
+/* ------------------------------------------------------------------ */
+
+body {
+  background: transparent;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-accent) 30%, transparent);
+}
+
+/* Headlines: SF Pro Display, tight like Profound's. */
+.title-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.022em;
+  font-feature-settings: "ss01", "cv11";
+}
+
+/* Dashed hairline: Profound's grid signature, used for section rules. */
+.hairline-dashed {
+  border: 0;
+  height: 1px;
+  background-image: linear-gradient(
+    to right,
+    var(--color-line-strong) 50%,
+    transparent 50%
+  );
+  background-size: 6px 1px;
+  background-repeat: repeat-x;
+}
+
+/* Keyboard focus: one accent ring, everywhere (HIG). */
+:where(button, [role="button"], a, input, select, textarea):focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-accent) 70%, transparent);
+  outline-offset: 2px;
+}
+
+/* A soft accent bloom at the foot of the content panel, à la Profound. */
+.panel-glow {
+  background-image: radial-gradient(
+    60% 120px at 50% 100%,
+    color-mix(in srgb, var(--color-accent) 10%, transparent),
+    transparent 70%
+  );
 }

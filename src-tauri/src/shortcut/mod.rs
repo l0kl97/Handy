@@ -824,6 +824,24 @@ pub fn change_start_hidden_setting(app: AppHandle, enabled: bool) -> Result<(), 
 
 #[tauri::command]
 #[specta::specta]
+pub fn change_glass_effect_setting(app: AppHandle, enabled: bool) -> Result<(), String> {
+    let mut settings = settings::get_settings(&app);
+    settings.glass_effect = enabled;
+    settings::write_settings(&app, settings);
+
+    let _ = app.emit(
+        "settings-changed",
+        serde_json::json!({
+            "setting": "glass_effect",
+            "value": enabled
+        }),
+    );
+
+    Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
 pub fn change_autostart_setting(app: AppHandle, enabled: bool) -> Result<(), String> {
     let mut settings = settings::get_settings(&app);
     settings.autostart_enabled = enabled;

@@ -32,7 +32,8 @@ export const Switch: React.FC<SwitchProps> = ({
         disabled={disabled}
         onChange={(e) => onChange(e.target.checked)}
       />
-      <div className="relative w-11 h-6 bg-line peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-logo-primary rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-line-strong after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-background-ui peer-disabled:opacity-50"></div>
+      {/* HIG-sized switch: accent when on, a white knob with a soft shadow. */}
+      <div className="relative w-[38px] h-[22px] rounded-full bg-line-strong transition-colors duration-200 peer-checked:bg-accent peer-disabled:opacity-40 peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-accent/70 after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:h-[18px] after:w-[18px] after:rounded-full after:bg-white after:shadow-[0_1px_3px_rgba(0,0,0,0.25),0_0_0_0.5px_rgba(0,0,0,0.06)] after:transition-transform after:duration-200 after:ease-[cubic-bezier(0.22,1,0.36,1)] peer-checked:after:translate-x-4 rtl:peer-checked:after:-translate-x-4"></div>
     </label>
   );
 };

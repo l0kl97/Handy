@@ -973,6 +973,10 @@
       "dark": "Dunkel"
     }
   },
+  "glass": {
+    "title": "Glas-Effekt",
+    "description": "Lässt den Desktop mit dem durchscheinenden macOS-Material durch das Fenster schimmern"
+  },
   "overlay": {
     "transcribing": "Transkribiere...",
     "processing": "Verarbeite...",

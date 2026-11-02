@@ -8,6 +8,11 @@ import {
   getStoredTheme,
   syncThemeFromSettings,
 } from "./lib/utils/theme";
+import {
+  applyGlass,
+  getStoredGlass,
+  syncGlassFromSettings,
+} from "./lib/utils/glass";
 
 installCompatShims();
 
@@ -18,6 +23,8 @@ document.documentElement.dataset.platform = platform();
 // the wrong palette, then reconcile with the persisted setting once it loads.
 applyTheme(getStoredTheme());
 syncThemeFromSettings();
+applyGlass(getStoredGlass());
+syncGlassFromSettings();
 
 // Initialize i18n
 import "./i18n";

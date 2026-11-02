@@ -1,7 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Cog, FlaskConical, History, Info, Sparkles, Cpu } from "lucide-react";
-import HandyTextLogo from "./icons/HandyTextLogo";
 import HandyHand from "./icons/HandyHand";
 import { useSettings } from "../hooks/useSettings";
 import {
@@ -93,34 +92,51 @@ export const Sidebar: React.FC<SidebarProps> = ({
     .map(([id, config]) => ({ id: id as SidebarSection, ...config }));
 
   return (
-    <div className="flex flex-col w-40 h-full border-e border-line items-center px-2">
-      <HandyTextLogo width={120} className="m-4" />
-      <div className="flex flex-col w-full items-center gap-1 pt-2 border-t border-line">
+    <nav className="flex flex-col w-52 shrink-0 h-full bg-canvas">
+      {/* Inset title bar: the traffic lights sit here, and it drags the window. */}
+      <div data-tauri-drag-region className="h-[52px] shrink-0" />
+      {/* Wordmark: hand glyph + name in SF Pro Display, mono like Profound's. */}
+      <div
+        data-tauri-drag-region
+        className="flex items-center gap-2 px-5 pb-6 text-text"
+      >
+        <HandyHand width={18} height={18} />
+        {/* eslint-disable-next-line i18next/no-literal-string */}
+        <span className="title-display text-[17px] font-semibold">Handy</span>
+      </div>
+      <div className="flex flex-col w-full gap-0.5 px-3">
         {availableSections.map((section) => {
           const Icon = section.icon;
           const isActive = activeSection === section.id;
 
           return (
-            <div
+            <button
+              type="button"
               key={section.id}
-              className={`flex gap-2 items-center p-2 w-full rounded-lg cursor-pointer transition-colors ${
+              aria-current={isActive ? "page" : undefined}
+              className={`group flex gap-2.5 items-center h-8 px-2.5 w-full rounded-[8px] cursor-pointer text-start transition-colors duration-150 ${
                 isActive
-                  ? "bg-logo-primary/80"
-                  : "hover:bg-line hover:opacity-100 opacity-85"
+                  ? "bg-line text-text"
+                  : "text-ink-2 hover:text-text hover:bg-wash"
               }`}
               onClick={() => onSectionChange(section.id)}
             >
-              <Icon width={24} height={24} className="shrink-0" />
-              <p
-                className="text-sm font-medium truncate"
+              <Icon
+                width={16}
+                height={16}
+                strokeWidth={1.75}
+                className={`shrink-0 transition-colors ${isActive ? "text-text" : "text-ink-3 group-hover:text-ink-2"}`}
+              />
+              <span
+                className="text-[13px] font-medium tracking-[-0.005em] truncate"
                 title={t(section.labelKey)}
               >
                 {t(section.labelKey)}
-              </p>
-            </div>
+              </span>
+            </button>
           );
         })}
       </div>
-    </div>
+    </nav>
   );
 };

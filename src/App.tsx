@@ -319,23 +319,35 @@ function App() {
     content = (
       <div
         dir={direction}
-        className="h-screen flex flex-col select-none cursor-default"
+        className="h-screen flex flex-col select-none cursor-default bg-canvas"
       >
         <ErrorBoundary context="What's New">
           <WhatsNewGate />
         </ErrorBoundary>
-        {/* Main content area that takes remaining space */}
         <div className="flex-1 flex overflow-hidden">
           <Sidebar
             activeSection={currentSection}
             onSectionChange={setCurrentSection}
           />
-          {/* Scrollable content area */}
-          <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Content panel: one layer up from the canvas, hairline edge. */}
+          <main className="panel-glow flex-1 min-w-0 flex flex-col overflow-hidden bg-background border-s border-line">
+            <header data-tauri-drag-region className="shrink-0 px-8 pt-10 pb-4">
+              <h1
+                data-tauri-drag-region
+                className="title-display text-[26px] leading-[32px] font-semibold text-text"
+              >
+                {t(
+                  SECTIONS_CONFIG[currentSection]?.labelKey ??
+                    "sidebar.general",
+                )}
+              </h1>
+            </header>
+            <div className="hairline-dashed mx-8 shrink-0" />
+            {/* Scrollable content area */}
             <div ref={settingsScrollRef} className="flex-1 overflow-y-auto">
-              {/* Models fills the window: its table scrolls, not the page. */}
+              {/* Models fills the panel: its table scrolls, not the page. */}
               <div
-                className={`flex flex-col items-center p-4 gap-4 ${currentSection === "models" ? "h-full" : ""}`}
+                className={`flex flex-col items-center px-8 py-6 gap-4 ${currentSection === "models" ? "h-full" : ""}`}
               >
                 <SecureInputWarning />
                 {renderSettingsContent(
@@ -347,10 +359,9 @@ function App() {
                 )}
               </div>
             </div>
-          </div>
+            <Footer onShowHistory={showHistory} />
+          </main>
         </div>
-        {/* Fixed footer at bottom */}
-        <Footer onShowHistory={showHistory} />
         <FileDropOverlay onDropped={showHistory} />
       </div>
     );
