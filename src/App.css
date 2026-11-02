@@ -296,6 +296,16 @@ body {
   overscroll-behavior: none;
 }
 
+/* Every vertical scroller (content, model table, log viewer, dialogs, menus,
+   language lists, onboarding) is vertical-only: overflow-y:auto would turn
+   overflow-x into auto, and a pixel of overflow from macOS's classic
+   scrollbar then scrolls sideways. Code blocks that should scroll sideways
+   use overflow-x-auto and are unaffected. */
+.overflow-y-auto {
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
+}
+
 :root {
   /* Native controls (range sliders, checkboxes) use the app accent, never
      the system blue. */

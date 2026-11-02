@@ -149,6 +149,9 @@ async function mockTauri(page: Page, mode: Mode, upstream = "v0.10.0") {
               { timestamp: t, words: 240 },
             ];
           }
+          if (cmd === "check_custom_sounds")
+            return { start: false, stop: false };
+          if (/microphones|output_devices|audio_devices/.test(cmd)) return [];
           if (cmd.startsWith("plugin:macos-permissions")) return true;
           if (cmd === "plugin:app|version") return "0.10.0";
           if (cmd === "is_update_checks_locked") return false;
@@ -512,21 +515,34 @@ for (const glass of [false, true]) {
     await mockTauri(page, { theme: "dark", glass });
     await page.setViewportSize({ width: 720, height: 600 });
     await page.goto("/");
-    for (const name of ["Insights", "History", "Advanced", "About"]) {
-      await page.locator("nav").getByRole("button", { name }).click();
-      const result = await page.evaluate(() => {
+    // Debug mode adds the Debug page (with the live log viewer).
+    await page.keyboard.press("Meta+Shift+D");
+    await expect(
+      page.locator("nav").getByRole("button", { name: "Debug" }),
+    ).toBeVisible();
+
+    const probe = () =>
+      page.evaluate(() => {
         const roots = [document.documentElement, document.body];
-        // Try to push every scroll container sideways, like a trackpad swipe.
         const all = [
           ...roots,
           ...Array.from(document.querySelectorAll<HTMLElement>("*")),
         ];
         const moved: string[] = [];
+        const bounce: string[] = [];
         for (const el of all) {
-          // Only what a trackpad can scroll: overflow-x auto/scroll (or the page).
-          const ox = getComputedStyle(el).overflowX;
+          const cs = getComputedStyle(el);
+          const isRoot = roots.includes(el);
+          // Vertical scrollers and the page must never rubber-band sideways.
+          if (
+            (isRoot || cs.overflowY === "auto") &&
+            cs.overscrollBehaviorX !== "none"
+          )
+            bounce.push(`${el.tagName}.${String(el.className).slice(0, 40)}`);
+          // Only what a trackpad can scroll; code blocks (overflow-x-auto
+          // without a vertical scroll) may legitimately scroll sideways.
           const userScrollable =
-            ox === "auto" || ox === "scroll" || roots.includes(el);
+            isRoot || (cs.overflowX === "auto" && cs.overflowY === "auto");
           if (!userScrollable) continue;
           const before = el.scrollLeft;
           el.scrollLeft = 200;
@@ -536,13 +552,27 @@ for (const glass of [false, true]) {
           }
         }
         window.scrollTo(200, 0);
-        // Also: no trackpad rubber-band on the page or the content scroller.
-        const bounce = [document.documentElement, document.body]
-          .map((el) => getComputedStyle(el).overscrollBehaviorX)
-          .filter((v) => v !== "none");
         return { moved, pageX: window.scrollX, bounce };
       });
-      expect(result, name).toEqual({ moved: [], pageX: 0, bounce: [] });
+
+    const buttons = page.locator("nav").getByRole("button");
+    const count = await buttons.count();
+    for (let i = 0; i < count; i++) {
+      const name = (await buttons.nth(i).innerText()).trim();
+      await buttons.nth(i).click();
+      await expect(page.locator("main h1")).toHaveText(name);
+      expect(await probe(), name).toEqual({ moved: [], pageX: 0, bounce: [] });
     }
+    // An open dropdown menu is a scroller too.
+    await page.locator("nav").getByRole("button", { name: "Advanced" }).click();
+    await page
+      .getByRole("button", { name: /5 minutes/ })
+      .first()
+      .click();
+    expect(await probe(), "open dropdown").toEqual({
+      moved: [],
+      pageX: 0,
+      bounce: [],
+    });
   });
 }
