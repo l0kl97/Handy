@@ -184,7 +184,10 @@ impl HistoryManager {
         }
 
         // Fork: lifetime dictation stats (own table, not a numbered migration).
-        super::dictation_stats::ensure_table(conn)?;
+        // Stats are optional: a failure must never take the history down.
+        if let Err(e) = super::dictation_stats::ensure_table(conn) {
+            warn!("Dictation stats unavailable: {e}");
+        }
 
         Ok(())
     }
@@ -278,6 +281,22 @@ impl HistoryManager {
         })
     }
 
+    /// Fork: upsert this entry's word count into the stats; warn-only.
+    fn record_dictation_stats(&self, entry: &HistoryEntry) {
+        if let Err(e) = self.get_connection().and_then(|conn| {
+            super::dictation_stats::record_history_entry(
+                &conn,
+                entry.id,
+                entry.timestamp,
+                &entry.transcription_text,
+                entry.post_processed_text.as_deref(),
+                entry.source_name.as_deref(),
+            )
+        }) {
+            warn!("Failed to record dictation stats: {e}");
+        }
+    }
+
     /// Fork: every dictation's word count, oldest first (see dictation_stats).
     pub fn get_dictation_words(&self) -> Result<Vec<super::dictation_stats::DictationWords>> {
         let conn = self.get_connection()?;
@@ -316,15 +335,7 @@ impl HistoryManager {
         })?;
 
         // Fork: count the words for the stats before pruning can drop the entry.
-        let words = super::dictation_stats::count_words(super::dictation_stats::delivered_text(
-            &entry.transcription_text,
-            entry.post_processed_text.as_deref(),
-        ));
-        if let Err(e) = self.get_connection().and_then(|conn| {
-            super::dictation_stats::record_with_conn(&conn, entry.timestamp, words)
-        }) {
-            warn!("Failed to record dictation stats: {e}");
-        }
+        self.record_dictation_stats(&entry);
 
         self.cleanup_old_entries()?;
 
@@ -440,6 +451,9 @@ impl HistoryManager {
         )?;
 
         debug!("Updated transcription for history entry {}", id);
+
+        // Fork: a retry (or late post-processing) updates the stats too.
+        self.record_dictation_stats(&entry);
 
         if let Err(e) = (HistoryUpdatePayload::Updated {
             entry: entry.clone(),

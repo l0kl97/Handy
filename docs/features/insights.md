@@ -10,7 +10,7 @@ The "Tacho" is the percentile gauge in the Profound screenshot.
 
 ## Decisions
 
-- **Own stats table, not the history.** History keeps only 5 entries by default, so stats built from it would shrink. `dictation_words` (timestamp, words) lives in history.db, is written on every dictation and is never pruned. Deleting a history entry keeps its words in the stats.
+- **Own stats table, not the history.** History keeps only 5 entries by default, so stats built from it would shrink. `dictation_words` (history_id UNIQUE, timestamp, words) lives in history.db, is upserted on every dictation and retry, and is never pruned. Deleting a history entry keeps its words in the stats.
 - **Upstream-safe schema.** The table is created with `CREATE TABLE IF NOT EXISTS` from `apply_migrations`, not as a numbered migration, so it never collides with upstream Handy's next migration (this is a fork). It is backfilled once from the dictations still in history.
 - **Logic in its own files** (`managers/dictation_stats.rs`, `src/lib/stats/insights.ts`, `src/components/insights/`) and only a few lines in upstream files, to keep merges small.
 - **What counts:** dictations only, not file transcriptions. The text counted is the delivered one (post-processed if present). Words are split on whitespace, and in Chinese/Japanese each character counts as a word.
@@ -43,3 +43,4 @@ The "Tacho" is the percentile gauge in the Profound screenshot.
 ## History
 
 - 2026-11-02: created
+- 2026-11-02: pre-push review: retried dictations were never counted (only `save_entry` recorded). Rows are now keyed by history id and upserted from `save_entry` and `update_transcription`. Create + backfill run in one transaction, and a stats failure only warns. The early dev schema (no `history_id`) is rebuilt from history. The insights listener no longer leaks on a fast unmount.

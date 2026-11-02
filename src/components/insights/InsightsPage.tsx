@@ -36,13 +36,21 @@ export const InsightsPage: React.FC = () => {
 
   useEffect(() => {
     load();
-    // Refresh after every finished dictation.
+    // Refresh after every finished dictation. listen() resolves later than
+    // a quick unmount, so unlisten right away if we are already gone.
+    let cancelled = false;
     let unlisten: (() => void) | undefined;
     events.transcriptionCompleteEvent
       .listen(() => load())
-      .then((u) => (unlisten = u))
-      .catch(() => {});
-    return () => unlisten?.();
+      .then((u) => {
+        if (cancelled) u();
+        else unlisten = u;
+      })
+      .catch((e) => console.warn("Failed to listen for dictations:", e));
+    return () => {
+      cancelled = true;
+      unlisten?.();
+    };
   }, [load]);
 
   const s = useMemo(() => computeInsights(entries ?? []), [entries]);

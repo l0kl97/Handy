@@ -25,53 +25,93 @@ pub struct DictationWords {
 
 const TABLE: &str = "dictation_words";
 
-/// Creates the stats table if needed. When it is new, backfills it from the
-/// dictations already in `transcription_history` (files are not dictations).
-pub fn ensure_table(conn: &Connection) -> Result<()> {
-    let exists: bool = conn.query_row(
+fn table_exists(conn: &Connection) -> Result<bool> {
+    Ok(conn.query_row(
         "SELECT COUNT(*) > 0 FROM sqlite_master WHERE type = 'table' AND name = ?1",
         [TABLE],
         |row| row.get(0),
-    )?;
-    if exists {
+    )?)
+}
+
+fn has_history_id(conn: &Connection) -> Result<bool> {
+    Ok(conn.query_row(
+        "SELECT COUNT(*) > 0 FROM pragma_table_info('dictation_words') WHERE name = 'history_id'",
+        [],
+        |row| row.get(0),
+    )?)
+}
+
+/// Creates the stats table if needed and, when new, backfills it from the
+/// dictations already in `transcription_history` (files are not dictations).
+/// Create and backfill run in one transaction: an interrupted first run
+/// leaves no table, so the next start simply tries again.
+pub fn ensure_table(conn: &Connection) -> Result<()> {
+    if table_exists(conn)? && has_history_id(conn)? {
         return Ok(());
     }
 
-    conn.execute_batch(
-        "CREATE TABLE IF NOT EXISTS dictation_words (
+    let tx = conn.unchecked_transaction()?;
+    // A table without history_id comes from an early dev build of this
+    // feature; it only ever held words derived from the history, so rebuild.
+    tx.execute_batch(
+        "DROP TABLE IF EXISTS dictation_words;
+        CREATE TABLE dictation_words (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            history_id INTEGER UNIQUE,
             timestamp INTEGER NOT NULL,
             words INTEGER NOT NULL
         );
-        CREATE INDEX IF NOT EXISTS dictation_words_timestamp
-            ON dictation_words (timestamp);",
+        CREATE INDEX dictation_words_timestamp ON dictation_words (timestamp);",
     )?;
 
-    let mut stmt = conn.prepare(
-        "SELECT timestamp, transcription_text, post_processed_text
-         FROM transcription_history
-         WHERE source_name IS NULL",
-    )?;
-    let rows = stmt
-        .query_map([], |row| {
-            Ok((
-                row.get::<_, i64>(0)?,
-                row.get::<_, String>(1)?,
-                row.get::<_, Option<String>>(2)?,
-            ))
-        })?
-        .collect::<std::result::Result<Vec<_>, _>>()?;
+    let rows = {
+        let mut stmt = tx.prepare(
+            "SELECT id, timestamp, transcription_text, post_processed_text
+             FROM transcription_history
+             WHERE source_name IS NULL",
+        )?;
+        let rows = stmt
+            .query_map([], |row| {
+                Ok((
+                    row.get::<_, i64>(0)?,
+                    row.get::<_, i64>(1)?,
+                    row.get::<_, String>(2)?,
+                    row.get::<_, Option<String>>(3)?,
+                ))
+            })?
+            .collect::<std::result::Result<Vec<_>, _>>()?;
+        rows
+    };
 
     let mut backfilled = 0;
-    for (timestamp, text, post_processed) in rows {
+    for (id, timestamp, text, post_processed) in rows {
         let words = count_words(delivered_text(&text, post_processed.as_deref()));
         if words > 0 {
-            record_with_conn(conn, timestamp, words)?;
+            record_with_conn(&tx, id, timestamp, words)?;
             backfilled += 1;
         }
     }
+    tx.commit()?;
     info!("Created dictation stats; backfilled {backfilled} dictation(s) from history");
     Ok(())
+}
+
+/// Records (or re-records) one history entry. Files are not dictations and
+/// are skipped. A retry replaces the entry's earlier count instead of adding
+/// to it; a result with no words removes it.
+pub fn record_history_entry(
+    conn: &Connection,
+    history_id: i64,
+    timestamp: i64,
+    transcription: &str,
+    post_processed: Option<&str>,
+    source_name: Option<&str>,
+) -> Result<()> {
+    if source_name.is_some() {
+        return Ok(());
+    }
+    let words = count_words(delivered_text(transcription, post_processed));
+    record_with_conn(conn, history_id, timestamp, words)
 }
 
 /// The text the user actually got: the post-processed version when there is
@@ -105,14 +145,24 @@ fn is_cjk(c: char) -> bool {
     )
 }
 
-/// Records a dictation. Zero-word dictations are not stored.
-pub fn record_with_conn(conn: &Connection, timestamp: i64, words: u32) -> Result<()> {
+/// Upserts the word count for a history entry; zero words removes it.
+pub fn record_with_conn(
+    conn: &Connection,
+    history_id: i64,
+    timestamp: i64,
+    words: u32,
+) -> Result<()> {
     if words == 0 {
+        conn.execute(
+            "DELETE FROM dictation_words WHERE history_id = ?1",
+            params![history_id],
+        )?;
         return Ok(());
     }
     conn.execute(
-        "INSERT INTO dictation_words (timestamp, words) VALUES (?1, ?2)",
-        params![timestamp, words],
+        "INSERT INTO dictation_words (history_id, timestamp, words) VALUES (?1, ?2, ?3)
+         ON CONFLICT(history_id) DO UPDATE SET words = excluded.words",
+        params![history_id, timestamp, words],
     )?;
     Ok(())
 }
@@ -244,7 +294,7 @@ mod tests {
     fn stats_survive_history_pruning() {
         let conn = history_conn();
         ensure_table(&conn).unwrap();
-        record_with_conn(&conn, 500, 7).unwrap();
+        record_with_conn(&conn, 1, 500, 7).unwrap();
         conn.execute("DELETE FROM transcription_history", [])
             .unwrap();
         assert_eq!(
@@ -257,10 +307,66 @@ mod tests {
     }
 
     #[test]
+    fn a_retry_after_a_failed_dictation_is_counted_once() {
+        let conn = history_conn();
+        ensure_table(&conn).unwrap();
+        // The failed dictation is saved with empty text...
+        record_history_entry(&conn, 42, 900, "", None, None).unwrap();
+        assert!(all_with_conn(&conn).unwrap().is_empty());
+        // ...the retry fills it in, and a second retry replaces, not adds.
+        record_history_entry(&conn, 42, 900, "one two three four", None, None).unwrap();
+        record_history_entry(&conn, 42, 900, "one two three", None, None).unwrap();
+        assert_eq!(
+            all_with_conn(&conn).unwrap(),
+            vec![DictationWords {
+                timestamp: 900,
+                words: 3
+            }]
+        );
+    }
+
+    #[test]
+    fn a_retry_that_yields_nothing_removes_the_count() {
+        let conn = history_conn();
+        ensure_table(&conn).unwrap();
+        record_history_entry(&conn, 7, 10, "some words", None, None).unwrap();
+        record_history_entry(&conn, 7, 10, "  ", None, None).unwrap();
+        assert!(all_with_conn(&conn).unwrap().is_empty());
+    }
+
+    #[test]
+    fn file_transcriptions_are_never_recorded() {
+        let conn = history_conn();
+        ensure_table(&conn).unwrap();
+        record_history_entry(&conn, 3, 10, "long file text", None, Some("talk.mp3")).unwrap();
+        assert!(all_with_conn(&conn).unwrap().is_empty());
+    }
+
+    #[test]
+    fn rebuilds_a_table_from_the_early_schema() {
+        let conn = history_conn();
+        add(&conn, 100, "eins zwei", None, None);
+        conn.execute_batch(
+            "CREATE TABLE dictation_words (id INTEGER PRIMARY KEY, timestamp INTEGER NOT NULL, words INTEGER NOT NULL);
+             INSERT INTO dictation_words (timestamp, words) VALUES (100, 2);",
+        )
+        .unwrap();
+        ensure_table(&conn).unwrap();
+        assert!(has_history_id(&conn).unwrap());
+        assert_eq!(
+            all_with_conn(&conn).unwrap(),
+            vec![DictationWords {
+                timestamp: 100,
+                words: 2
+            }]
+        );
+    }
+
+    #[test]
     fn zero_word_dictations_are_not_recorded() {
         let conn = history_conn();
         ensure_table(&conn).unwrap();
-        record_with_conn(&conn, 1, 0).unwrap();
+        record_with_conn(&conn, 1, 1, 0).unwrap();
         assert!(all_with_conn(&conn).unwrap().is_empty());
     }
 }
