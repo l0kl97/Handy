@@ -54,36 +54,12 @@
   --dark-color-demo-alu-hi: #5a585d;
   --light-color-demo-alu-lo: #cdccd1;
   --dark-color-demo-alu-lo: #3b3a3e;
-  --light-color-moss-wash: color-mix(
-    in srgb,
-    --light-color-moss 12%,
-    --light-color-background
-  );
-  --dark-color-moss-wash: color-mix(
-    in srgb,
-    --dark-color-moss 14%,
-    --dark-color-background
-  );
-  --light-color-warning-wash: color-mix(
-    in srgb,
-    --light-color-warning 12%,
-    --light-color-background
-  );
-  --dark-color-warning-wash: color-mix(
-    in srgb,
-    --dark-color-warning 14%,
-    --dark-color-background
-  );
-  --light-color-error-wash: color-mix(
-    in srgb,
-    --light-color-error 12%,
-    --light-color-background
-  );
-  --dark-color-error-wash: color-mix(
-    in srgb,
-    --dark-color-error 14%,
-    --dark-color-background
-  );
+  --light-color-moss-wash: color-mix(in srgb, var(--light-color-moss) 12%, var(--light-color-background));
+  --dark-color-moss-wash: color-mix(in srgb, var(--dark-color-moss) 14%, var(--dark-color-background));
+  --light-color-warning-wash: color-mix(in srgb, var(--light-color-warning) 12%, var(--light-color-background));
+  --dark-color-warning-wash: color-mix(in srgb, var(--dark-color-warning) 14%, var(--dark-color-background));
+  --light-color-error-wash: color-mix(in srgb, var(--light-color-error) 12%, var(--light-color-background));
+  --dark-color-error-wash: color-mix(in srgb, var(--dark-color-error) 14%, var(--dark-color-background));
 
   /* Legacy aliases used by the onboarding demo. */
   --light-color-logo-primary: var(--light-color-accent);

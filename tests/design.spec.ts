@@ -80,6 +80,8 @@ async function mockTauri(page: Page, mode: Mode) {
           if (cmd === "get_app_settings" || cmd === "get_default_settings")
             return state;
           if (cmd === "change_glass_effect_setting") {
+            // A test can make the settings write fail to check the rollback.
+            if (w.__HANDY_FAIL_GLASS_WRITE__) throw new Error("write failed");
             state.glass_effect = args.enabled as boolean;
             return null;
           }
@@ -141,6 +143,21 @@ for (const mode of [
     }, PINK);
     expect(pinkHits).toEqual([]);
 
+    // Status tints must resolve to a real colour (warning/error/success boxes).
+    const washes = await page.evaluate(() => {
+      const probe = document.createElement("div");
+      document.body.appendChild(probe);
+      const out: Record<string, string> = {};
+      for (const t of ["moss-wash", "warning-wash", "error-wash"]) {
+        probe.style.backgroundColor = `var(--color-${t})`;
+        out[t] = getComputedStyle(probe).backgroundColor;
+      }
+      probe.remove();
+      return out;
+    });
+    for (const [token, value] of Object.entries(washes))
+      expect(value, token).not.toBe("rgba(0, 0, 0, 0)");
+
     await page.screenshot({
       path: `test-results/design/${name}-general.png`,
     });
@@ -181,4 +198,32 @@ test("glass toggle switches the glass layer on and off", async ({ page }) => {
   await toggle.uncheck({ force: true });
   await expect(page.locator("html")).not.toHaveAttribute("data-glass");
   expect(await lastEffects()).toBeNull();
+});
+
+test("glass rolls back when the settings write fails", async ({ page }) => {
+  await mockTauri(page, { theme: "dark", glass: false });
+  await page.goto("/");
+  await page.evaluate(() => {
+    (window as unknown as Record<string, unknown>).__HANDY_FAIL_GLASS_WRITE__ =
+      true;
+  });
+  await page.locator("nav").getByRole("button").last().click();
+
+  const toggle = page.getByRole("checkbox", { name: /glass/i });
+  // click, not check(): the switch is expected to snap back.
+  await toggle.click({ force: true });
+
+  // The write failed: the switch, the page and the window all fall back to off.
+  await expect(toggle).not.toBeChecked();
+  await expect(page.locator("html")).not.toHaveAttribute("data-glass");
+  expect(
+    await page.evaluate(
+      () =>
+        (window as unknown as { __HANDY_LAST_EFFECTS__: unknown })
+          .__HANDY_LAST_EFFECTS__,
+    ),
+  ).toBeNull();
+  expect(await page.evaluate(() => localStorage.getItem("handy.glass"))).toBe(
+    "0",
+  );
 });

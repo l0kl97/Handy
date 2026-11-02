@@ -2,6 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { ToggleSwitch } from "../ui/ToggleSwitch";
 import { useSettings } from "@/hooks/useSettings";
+import { useSettingsStore } from "@/stores/settingsStore";
 import { applyGlass, glassSupported } from "@/lib/utils/glass";
 
 interface GlassEffectToggleProps {
@@ -22,9 +23,14 @@ export const GlassEffectToggle: React.FC<GlassEffectToggleProps> = React.memo(
     return (
       <ToggleSwitch
         checked={enabled}
-        onChange={(value) => {
+        onChange={async (value) => {
+          // Optimistic: the window changes at once. The store reverts the
+          // value if the write fails, so re-apply whatever actually stuck.
           applyGlass(value);
-          updateSetting("glass_effect", value);
+          await updateSetting("glass_effect", value);
+          applyGlass(
+            useSettingsStore.getState().settings?.glass_effect ?? false,
+          );
         }}
         isUpdating={isUpdating("glass_effect")}
         label={t("glass.title")}
