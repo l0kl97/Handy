@@ -34,6 +34,22 @@ jobs:
         if: hashFiles('package-lock.json') != ''
         run: npm audit --audit-level=high
 
+      - uses: oven-sh/setup-bun@v2
+        if: hashFiles('bun.lock') != ''
+
+      - name: bun audit (if Bun project)
+        if: hashFiles('bun.lock') != ''
+        run: |
+          bun install --frozen-lockfile --ignore-scripts
+          bun audit --audit-level=high
+
+      - name: cargo audit (Tauri backend)
+        if: hashFiles('src-tauri/Cargo.lock') != ''
+        uses: rustsec/audit-check@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          working-directory: src-tauri
+
       - name: pip-audit (if Python project)
         if: hashFiles('requirements.txt') != '' || hashFiles('pyproject.toml') != ''
         run: |
