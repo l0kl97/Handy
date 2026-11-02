@@ -5,7 +5,8 @@
  *  surface     grouped cards; surface-2 for controls and hover fills
  *  text / ink-2 / ink-3   primary, secondary, tertiary text
  *  line / line-strong / wash   hairlines, control edges, subtle fills
- *  accent      the one colour: active switches, progress, focus, recording
+ *  accent      the one colour, Profound amber: active switches, progress,
+ *              focus, recording
  *  moss / warning / error (+ -wash)   status only
  * Legacy names logo-primary and background-ui now resolve to the accent, so
  * older components follow without edits. No pink anywhere.
@@ -26,14 +27,14 @@
   --dark-color-surface: #1a1a1c;
   --light-color-surface-2: #f2f2f4;
   --dark-color-surface-2: #232325;
-  --light-color-accent: #376cff;
-  --dark-color-accent: #4f7fff;
+  --light-color-accent: #d9661a;
+  --dark-color-accent: #ff8a3d;
   --light-color-ink-2: #5f5f64;
   --dark-color-ink-2: #a8a8ad;
   --light-color-ink-3: #76767b;
   --dark-color-ink-3: #86868b;
-  --light-color-warning: #c2620a;
-  --dark-color-warning: #ff9f40;
+  --light-color-warning: #a87b00;
+  --dark-color-warning: #ffd60a;
   --light-color-error: #d52b1e;
   --dark-color-error: #ff5f57;
   --light-color-moss: #1f8f4e;
@@ -90,7 +91,7 @@
   --dark-color-logo-primary: var(--dark-color-accent);
   --light-color-logo-stroke: var(--light-color-plum);
 
-  /* Demo laptop wallpaper: a cool blue bloom on graphite, no pink. */
+  /* Demo laptop wallpaper: a warm amber bloom on graphite, no pink. */
   --light-demo-wallpaper:
     radial-gradient(
       110% 80% at 90% 105%,
@@ -169,7 +170,7 @@
   /* Legacy names → accent. */
   --color-logo-primary: var(--color-accent);
   --color-background-ui: var(--color-accent);
-  --color-on-accent: #ffffff;
+  --color-on-accent: #160c04;
 
   /* Edge of a picked card or option. */
   --color-plum-pick: color-mix(in srgb, var(--color-plum) 60%, transparent);

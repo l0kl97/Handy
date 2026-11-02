@@ -14,11 +14,12 @@ Jonah also shared two screenshots of tryprofound.com: black canvas, a sidebar wi
 - **Dark-first.** New installs default to Dark (Rust `default_theme`, boot fallback in `theme.ts`). Dark layers follow Profound: sidebar `#0b0b0c`, panel `#141415`, cards `#1a1a1c`. The big page title became a 14px toolbar title on the traffic-light line, as in Profound's app.
 - **Widget is always dark**, whatever the theme: a deep gradient body, a bright rim along the top edge, white live bars, an accent bloom underneath (`RecordingOverlay.css`, `--s-*` variables).
 - **Liquid Glass is native.** Tauri's `setEffects` only knows the older vibrancy, so `src-tauri/src/glass.rs` inserts an `NSGlassEffectView` (macOS 26+, looked up at runtime) behind the webview, falling back to sidebar vibrancy. Rust applies it at startup and from `change_glass_effect_setting`; the frontend only toggles `data-glass`. The CSS adds the Tahoe look: a floating sidebar pane (8px inset, 18px radius, specular rim), a borderless panel and rim-lit cards. `prefers-reduced-transparency` turns the layers opaque again.
-- **Monochrome first, one accent.** Profound's brand is black/white plus Profound Blue `#376CFF`. Primary buttons are solid ink (white on dark, near-black on light); blue marks state only: switches, progress, focus, the recording pill. Amber/red/green are status only. Rejected: keeping a saturated brand colour on every primary button (the old pink pattern).
+- **Monochrome first, one accent: amber.** Primary buttons are solid ink (white on dark, near-black on light). The accent marks state only: switches, progress, focus, the recording dot and glow. Red, green and yellow (warning) are status only. Rejected: keeping a saturated brand colour on every primary button (the old pink pattern).
+- **Accent changed from blue to amber (round 3).** The first pass took Profound Blue `#376CFF` from their brand page. Jonah pointed out that the app screenshots he showed use amber/orange as the accent (Recents icons, the badge), so the accent is now amber (`#ff8a3d` dark, `#d9661a` light, near-black text on it). Warning moved to yellow so it does not read as the accent.
 - **Token swap instead of a file-by-file rewrite.** ~49 files used `logo-primary` / `background-ui`; both now resolve to `--color-accent`, so the whole app follows from `src/styles/theme.css`. New layers: `canvas` (window/sidebar), `background` (content panel), `surface` / `surface-2` (cards, controls).
 - **HIG:** SF Pro Display/Text (system font, no longer SF Pro Rounded), inset title bar with traffic lights over the sidebar (`TitleBarStyle::Overlay`), 8–12px radii, HIG-sized switch, one accent focus ring.
 - **Glass = real vibrancy, not CSS blur.** On macOS the main window is created transparent; the toggle calls `setEffects(Effect.Sidebar)` / `clearEffects()` and sets `data-glass="on"`, which lowers the layer alphas in `theme.css`. With glass off, every layer is opaque, so nothing changes visually. Default: off. Windows/Linux: toggle hidden.
-- **Mascot and wordmark go mono.** The sidebar shows the hand glyph plus "Handy" in SF Pro Display instead of the bubbly wordmark, which clashed with the premium look. The mascot's pink tongue is neutral grey. Rejected: tinting them blue (it read as a different brand).
+- **Mascot and wordmark go mono.** The sidebar shows the hand glyph plus "Handy" in SF Pro Display instead of the bubbly wordmark, which clashed with the premium look. The mascot's pink tongue is neutral grey. Rejected: tinting them in the accent (it read as a different brand).
 - **Active nav row = translucent `line` fill**, not `surface-2`. In light mode `surface-2` matched the canvas and the active row disappeared (caught in the first screenshot pass).
 
 ## Where it lives
@@ -41,7 +42,7 @@ Jonah also shared two screenshots of tryprofound.com: black canvas, a sidebar wi
 2. Drag the window by the sidebar top or the page title.
 3. About → Glass Effect on: the desktop blurs through the sidebar and panel. Off: opaque again. Restart: the choice persists without a flash.
 4. Theme → Light / Dark / System: all three read well with glass on and off.
-5. Record a dictation: the overlay pill uses the blue accent, with no pink.
+5. Record a dictation: the overlay pill is dark with an amber dot and glow, with no pink.
 6. Smoke test: `bun run test:playwright` runs `tests/design.spec.ts`, which mocks the Tauri IPC, renders the settings UI in light, dark and dark+glass, fails on any of the old pinks in computed styles, and checks that the glass toggle sets `data-glass` and requests and clears the native effect. Screenshots land in `test-results/design/`.
 7. Checks: `bunx tsc --noEmit`, `bun run lint`, `bun run format:check`, `bun run check:translations`, `bun run test:keyboard`.
 
@@ -57,4 +58,5 @@ Jonah also shared two screenshots of tryprofound.com: black canvas, a sidebar wi
 - 2026-11-02: created
 - 2026-11-02: review caught bare custom properties in color-mix() (status washes blank) and a glass toggle without rollback; fixed test-first (`fix:` commit).
 - 2026-11-02: round 2: dark-first, toolbar title, dark widget, native Liquid Glass.
+- 2026-11-02: round 3: accent blue → amber, as in Jonah's Profound screenshots.
 - 2026-11-02: native check: a 58% translucent content panel turned grey over the glass. Now only the sidebar is glass and the panel/cards stay nearly opaque (86%/92%), as in macOS 26 apps.
