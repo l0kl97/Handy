@@ -71,11 +71,11 @@ export const Gauge: React.FC<GaugeProps> = ({
           strokeWidth={16}
           strokeLinecap="round"
         />
-        {/* Minor ticks just inside the track */}
+        {/* Ticks outside the track, between the arc and the labels */}
         {Array.from({ length: 25 }, (_, i) => {
           const deg = START + (SWEEP * i) / 24;
-          const a = polar(deg, R - 18);
-          const b = polar(deg, R - (i % 6 === 0 ? 26 : 22));
+          const a = polar(deg, R + 11);
+          const b = polar(deg, R + (i % 6 === 0 ? 17 : 14));
           return (
             <line
               key={i}
@@ -124,7 +124,7 @@ export const Gauge: React.FC<GaugeProps> = ({
         {/* Tick labels outside the arc */}
         {ticks.map((label, i) => {
           const deg = START + (SWEEP * i) / Math.max(1, ticks.length - 1);
-          const pt = polar(deg, R + 26);
+          const pt = polar(deg, R + 30);
           return (
             <text
               key={i}
