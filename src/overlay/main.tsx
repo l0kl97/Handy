@@ -7,6 +7,11 @@ import {
   getStoredTheme,
   syncThemeFromSettings,
 } from "@/lib/utils/theme";
+import {
+  applyGlass,
+  getStoredGlass,
+  syncGlassFromSettings,
+} from "@/lib/utils/glass";
 import type { Theme } from "@/bindings";
 import "@/i18n";
 
@@ -17,6 +22,13 @@ import "@/i18n";
 applyTheme(getStoredTheme());
 syncThemeFromSettings();
 listen<Theme>("theme-changed", (event) => applyTheme(event.payload));
+// Same for the glass setting: the widget wears the glass material too.
+applyGlass(getStoredGlass());
+syncGlassFromSettings();
+listen<{ setting: string; value: unknown }>("settings-changed", (event) => {
+  if (event.payload?.setting === "glass_effect")
+    applyGlass(event.payload.value === true);
+});
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>

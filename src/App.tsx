@@ -336,9 +336,10 @@ function App() {
               data-tauri-drag-region
               className="shrink-0 h-[52px] flex items-center px-8"
             >
+              {/* Same column as the page content below, so edges line up. */}
               <h1
                 data-tauri-drag-region
-                className="text-[14px] font-medium tracking-[-0.01em] text-text"
+                className="mx-auto w-full max-w-3xl px-1 text-[14px] font-medium tracking-[-0.01em] text-text"
               >
                 {t(
                   SECTIONS_CONFIG[currentSection]?.labelKey ??

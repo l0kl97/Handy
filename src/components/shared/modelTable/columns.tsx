@@ -68,8 +68,18 @@ export const Codes: React.FC<{ langs: string[]; vt?: VtName }> = ({
           {t("modelTable.allLanguages")}
         </span>
       )}
-      <span className={CODE_CLASS}>{t("modelTable.speed")}</span>
-      <span className={CODE_CLASS}>{t("modelTable.size")}</span>
+      <span
+        className={`${CODE_CLASS} max-w-full truncate`}
+        title={t("modelTable.speed")}
+      >
+        {t("modelTable.speed")}
+      </span>
+      <span
+        className={`${CODE_CLASS} max-w-full truncate`}
+        title={t("modelTable.size")}
+      >
+        {t("modelTable.size")}
+      </span>
     </span>
   );
 };

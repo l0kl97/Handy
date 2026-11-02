@@ -90,7 +90,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
       <button
         type="button"
         ref={triggerRef}
-        className={`px-2 py-[5px] text-sm font-semibold bg-wash border border-line-strong rounded-md min-w-[200px] w-full text-start grid grid-cols-[1fr_auto] gap-2 items-center transition-all duration-150 ${
+        className={`px-2.5 h-8 text-[13px] font-medium bg-surface-2 border border-line hover:border-line-strong rounded-[8px] min-w-[200px] w-full text-start grid grid-cols-[1fr_auto] gap-2 items-center transition-all duration-150 ${
           disabled
             ? "opacity-50 cursor-not-allowed"
             : `${hover} cursor-pointer ${tone === "neutral" ? "hover:border-ink-3" : "hover:border-logo-primary"}`
@@ -131,7 +131,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
                 <button
                   key={option.value}
                   type="button"
-                  className={`flex w-full items-center gap-2 rounded-md px-2 text-sm text-start transition-colors duration-150 ${
+                  className={`flex w-full items-center gap-2 rounded-[6px] px-2 text-[13px] text-start transition-colors duration-150 ${
                     option.description ? "py-2" : "py-1.5"
                   } ${isChosen ? chosen : "hover:bg-wash"} ${
                     option.disabled ? "opacity-50 cursor-not-allowed" : ""

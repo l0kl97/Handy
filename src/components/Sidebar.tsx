@@ -142,10 +142,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 strokeWidth={1.75}
                 className={`shrink-0 transition-colors ${isActive ? "text-text" : "text-ink-3 group-hover:text-ink-2"}`}
               />
-              <span
-                className="text-[13px] font-medium tracking-[-0.005em] truncate"
-                title={t(section.labelKey)}
-              >
+              <span className="text-[13px] font-medium tracking-[-0.005em] truncate">
                 {t(section.labelKey)}
               </span>
             </button>
