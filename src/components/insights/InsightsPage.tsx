@@ -221,6 +221,7 @@ export const InsightsPage: React.FC = () => {
                     <div className="h-[2px] w-full max-w-9 rounded-full bg-line" />
                   ) : (
                     <div
+                      data-bar=""
                       className={`w-full max-w-9 rounded-[6px] transition-[height] duration-500 ${
                         isToday
                           ? "bg-accent"

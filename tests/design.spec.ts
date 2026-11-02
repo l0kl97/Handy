@@ -459,7 +459,8 @@ test("the tallest bar keeps clear of the chart heading", async ({ page }) => {
   await page.setViewportSize({ width: 1040, height: 900 });
   await page.goto("/");
   const heading = page.getByText("660 words today");
-  const today = page.getByRole("listitem").last().locator("div div");
+  const today = page.getByRole("listitem").last().locator("[data-bar]");
+  await expect(today).toHaveCount(1);
   const h = await heading.boundingBox();
   const b = await today.boundingBox();
   expect(h && b).toBeTruthy();
