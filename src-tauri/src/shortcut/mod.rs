@@ -829,6 +829,10 @@ pub fn change_glass_effect_setting(app: AppHandle, enabled: bool) -> Result<(), 
     settings.glass_effect = enabled;
     settings::write_settings(&app, settings);
 
+    if let Some(window) = app.get_webview_window("main") {
+        crate::glass::apply(&window, enabled);
+    }
+
     let _ = app.emit(
         "settings-changed",
         serde_json::json!({

@@ -47,7 +47,8 @@ export const getStoredTheme = (): Theme => {
   } catch {
     // ignore
   }
-  return "system";
+  // This fork is dark-first (see docs/features/premium-design.md).
+  return "dark";
 };
 
 /** Apply the persisted theme from AppSettings (the source of truth). */

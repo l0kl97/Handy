@@ -1,14 +1,14 @@
 import { commands } from "@/bindings";
 import { platform } from "@tauri-apps/plugin-os";
-import { getCurrentWindow, Effect, EffectState } from "@tauri-apps/api/window";
 
 /**
  * Glass effect (macOS only).
  *
- * The main window is created transparent on macOS (see lib.rs). With glass
- * off, CSS paints opaque layers and nothing changes visually. With glass on,
- * `data-glass="on"` lowers the layer alphas (theme.css) and the window gets
- * the native sidebar vibrancy material, so the desktop blurs through.
+ * The native material is Rust's job (src-tauri/src/glass.rs): Liquid Glass
+ * (NSGlassEffectView) on macOS 26+, sidebar vibrancy before that. It is
+ * applied at startup and whenever change_glass_effect_setting runs. This
+ * module only drives the CSS side: `data-glass="on"` lowers the layer alphas
+ * and turns on the floating glass sidebar (theme.css / App.css).
  *
  * Like the theme, the choice is mirrored to localStorage and applied before
  * React mounts, then reconciled with AppSettings (the source of truth).
@@ -38,16 +38,6 @@ export const applyGlass = (enabled: boolean): void => {
   } catch {
     // Settings still persist; this only costs a one-frame flash on boot.
   }
-
-  if (!glassSupported()) return;
-  const win = getCurrentWindow();
-  const result = on
-    ? win.setEffects({
-        effects: [Effect.Sidebar],
-        state: EffectState.FollowsWindowActiveState,
-      })
-    : win.clearEffects();
-  result.catch((e) => console.warn("Failed to apply glass effect:", e));
 };
 
 export const getStoredGlass = (): boolean => {

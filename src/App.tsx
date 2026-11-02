@@ -330,11 +330,15 @@ function App() {
             onSectionChange={setCurrentSection}
           />
           {/* Content panel: one layer up from the canvas, hairline edge. */}
-          <main className="panel-glow flex-1 min-w-0 flex flex-col overflow-hidden bg-background border-s border-line">
-            <header data-tauri-drag-region className="shrink-0 px-8 pt-10 pb-4">
+          <main className="glass-panel panel-glow flex-1 min-w-0 flex flex-col overflow-hidden bg-background border-s border-line">
+            {/* Toolbar: on the traffic-light line, drags the window. */}
+            <header
+              data-tauri-drag-region
+              className="shrink-0 h-[52px] flex items-center px-8"
+            >
               <h1
                 data-tauri-drag-region
-                className="title-display text-[26px] leading-[32px] font-semibold text-text"
+                className="text-[14px] font-medium tracking-[-0.01em] text-text"
               >
                 {t(
                   SECTIONS_CONFIG[currentSection]?.labelKey ??
@@ -342,12 +346,11 @@ function App() {
                 )}
               </h1>
             </header>
-            <div className="hairline-dashed mx-8 shrink-0" />
             {/* Scrollable content area */}
             <div ref={settingsScrollRef} className="flex-1 overflow-y-auto">
               {/* Models fills the panel: its table scrolls, not the page. */}
               <div
-                className={`flex flex-col items-center px-8 py-6 gap-4 ${currentSection === "models" ? "h-full" : ""}`}
+                className={`flex flex-col items-center px-8 pt-2 pb-8 gap-4 ${currentSection === "models" ? "h-full" : ""}`}
               >
                 <SecureInputWarning />
                 {renderSettingsContent(

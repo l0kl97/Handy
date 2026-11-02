@@ -1,22 +1,40 @@
 @import "../styles/theme.css";
 
 :root {
-  --s-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  /* Near-opaque app surface (theme.css --color-background at 98%). Auto-flips
-     light/dark with --color-background, so no dark-mode override is needed. */
-  --s-surface: color-mix(in srgb, var(--color-background) 98%, transparent);
-  /* Accent = the app accent (Profound blue); flips via --color-logo-primary. */
-  --s-accent: var(--color-logo-primary);
-  /* The rest come from theme.css, which already follows the theme setting. */
+  --s-font:
+    "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
+  /* The widget is always dark — a premium "instrument" pill in the Profound
+     style, whatever the app theme. Liquid-glass treatment: a deep translucent
+     body, a bright rim along the top edge and a faint accent bloom below. */
+  --s-surface: linear-gradient(
+    180deg,
+    rgba(34, 34, 38, 0.94) 0%,
+    rgba(12, 12, 14, 0.96) 100%
+  );
+  --s-ink: #f5f5f7;
+  /* Live bars: white, the accent marks "listening". */
+  --s-bar: rgba(245, 245, 247, 0.92);
+  --s-accent: var(--dark-color-accent);
   --s-accent-soft: color-mix(
     in srgb,
-    var(--color-logo-primary) 20%,
+    var(--dark-color-accent) 28%,
     transparent
   );
-  --s-muted: var(--color-ink-2);
-  --s-faint: var(--color-ink-3);
-  --s-border: var(--color-line);
-  --s-hair: var(--color-wash);
+  --s-muted: #a8a8ad;
+  --s-faint: #86868b;
+  --s-border: rgba(255, 255, 255, 0.1);
+  --s-hair: rgba(255, 255, 255, 0.08);
+  --s-rim:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.03);
+  --s-bloom: radial-gradient(
+    70% 22px at 50% 100%,
+    color-mix(in srgb, var(--dark-color-accent) 22%, transparent),
+    transparent 100%
+  );
+  /* Text inside the widget reads light on the dark body. */
+  --color-text: var(--s-ink);
 
   /* Card geometry — single source of truth for the visible overlay sizes. The
      native overlay window (overlay.rs) is sized from these: it must be at least
@@ -108,9 +126,11 @@
   flex-direction: column;
   flex: none; /* hold our own width; never let the stage flex shrink the card */
   transform-origin: bottom center;
-  background: var(--s-surface);
+  background: var(--s-bloom), var(--s-surface);
   border: 1px solid var(--s-border);
-  /* Flat: no drop shadow, no backdrop blur/saturate (was a glassy gradient look). */
+  box-shadow: var(--s-rim);
+  color: var(--s-ink);
+  -webkit-font-smoothing: antialiased;
   /* pop-in plays on mount; morph (width/radius) is a transition */
   animation: scard-pop 460ms cubic-bezier(0.22, 1, 0.36, 1);
   transition:
@@ -168,10 +188,10 @@
   border-radius: 24px;
 }
 .scard.level-error {
-  --notice: var(--color-error);
+  --notice: var(--dark-color-error);
 }
 .scard.level-warning {
-  --notice: var(--color-warning);
+  --notice: var(--dark-color-warning);
 }
 .sbase.snotice {
   grid-template-columns: auto minmax(0, max-content);
@@ -360,7 +380,7 @@
   min-height: 3px;
   max-height: 18px;
   border-radius: 2px;
-  background: var(--s-accent);
+  background: var(--s-bar);
   transition:
     height 80ms linear,
     background-color 180ms ease,

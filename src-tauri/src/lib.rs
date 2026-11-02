@@ -10,6 +10,7 @@ pub mod cli;
 mod clipboard;
 mod commands;
 pub mod engine_supervisor;
+mod glass;
 mod helpers;
 mod input;
 mod language_detection;
@@ -1041,6 +1042,10 @@ pub fn run(cli_args: CliArgs) {
                     let _ = main_window.set_min_size(Some(size));
                     let _ = main_window.set_size(size);
                     let _ = main_window.center();
+                }
+
+                if settings::get_settings(app.handle()).glass_effect {
+                    glass::apply(&main_window, true);
                 }
             }
 

@@ -10,6 +10,10 @@ Jonah also shared two screenshots of tryprofound.com: black canvas, a sidebar wi
 
 ## Decisions
 
+- **Round 2 (same day):** Jonah sent a screenshot of Profound's app UI and asked to push further ("Dark, clean premium"), restyle the transcription widget and make the glass "more Liquid Glass".
+- **Dark-first.** New installs default to Dark (Rust `default_theme`, boot fallback in `theme.ts`). Dark layers follow Profound: sidebar `#0b0b0c`, panel `#141415`, cards `#1a1a1c`. The big page title became a 14px toolbar title on the traffic-light line, as in Profound's app.
+- **Widget is always dark**, whatever the theme: a deep gradient body, a bright rim along the top edge, white live bars, an accent bloom underneath (`RecordingOverlay.css`, `--s-*` variables).
+- **Liquid Glass is native.** Tauri's `setEffects` only knows the older vibrancy, so `src-tauri/src/glass.rs` inserts an `NSGlassEffectView` (macOS 26+, looked up at runtime) behind the webview, falling back to sidebar vibrancy. Rust applies it at startup and from `change_glass_effect_setting`; the frontend only toggles `data-glass`. The CSS adds the Tahoe look: a floating sidebar pane (8px inset, 18px radius, specular rim), a borderless panel and rim-lit cards. `prefers-reduced-transparency` turns the layers opaque again.
 - **Monochrome first, one accent.** Profound's brand is black/white plus Profound Blue `#376CFF`. Primary buttons are solid ink (white on dark, near-black on light); blue marks state only: switches, progress, focus, the recording pill. Amber/red/green are status only. Rejected: keeping a saturated brand colour on every primary button (the old pink pattern).
 - **Token swap instead of a file-by-file rewrite.** ~49 files used `logo-primary` / `background-ui`; both now resolve to `--color-accent`, so the whole app follows from `src/styles/theme.css`. New layers: `canvas` (window/sidebar), `background` (content panel), `surface` / `surface-2` (cards, controls).
 - **HIG:** SF Pro Display/Text (system font, no longer SF Pro Rounded), inset title bar with traffic lights over the sidebar (`TitleBarStyle::Overlay`), 8–12px radii, HIG-sized switch, one accent focus ring.
@@ -27,7 +31,9 @@ Jonah also shared two screenshots of tryprofound.com: black canvas, a sidebar wi
 - `src/lib/utils/glass.ts`: apply/persist the glass effect (boot-time from localStorage, then from settings)
 - `src/components/settings/GlassEffectToggle.tsx`: the toggle (About → next to the theme)
 - `src-tauri/src/settings.rs` (`glass_effect`), `src-tauri/src/shortcut/mod.rs` (`change_glass_effect_setting`), `src-tauri/src/lib.rs` (transparent window, overlay title bar)
-- `src-tauri/capabilities/default.json`: `core:window:allow-set-effects`, `core:window:allow-start-dragging`
+- `src-tauri/src/glass.rs`: native Liquid Glass / vibrancy
+- `src/overlay/RecordingOverlay.css`: the dark widget
+- `src-tauri/capabilities/default.json`: `core:window:allow-start-dragging` (drag regions)
 
 ## How to test it
 
@@ -49,3 +55,5 @@ Jonah also shared two screenshots of tryprofound.com: black canvas, a sidebar wi
 ## History
 
 - 2026-11-02: created
+- 2026-11-02: review caught bare custom properties in color-mix() (status washes blank) and a glass toggle without rollback; fixed test-first (`fix:` commit).
+- 2026-11-02: round 2: dark-first, toolbar title, dark widget, native Liquid Glass.

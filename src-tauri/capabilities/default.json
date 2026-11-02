@@ -6,7 +6,6 @@
   "permissions": [
     "core:default",
     "core:window:allow-start-dragging",
-    "core:window:allow-set-effects",
     "opener:default",
     "store:default",
     "updater:default",

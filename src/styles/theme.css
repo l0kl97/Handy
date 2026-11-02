@@ -19,13 +19,13 @@
   --light-color-text: #0b0b0c;
   --dark-color-text: #f5f5f7;
   --light-color-canvas: #f2f2f4;
-  --dark-color-canvas: #000000;
+  --dark-color-canvas: #0b0b0c;
   --light-color-background: #ffffff;
-  --dark-color-background: #0e0e10;
+  --dark-color-background: #141415;
   --light-color-surface: #ffffff;
-  --dark-color-surface: #141416;
+  --dark-color-surface: #1a1a1c;
   --light-color-surface-2: #f2f2f4;
-  --dark-color-surface-2: #1c1c1f;
+  --dark-color-surface-2: #232325;
   --light-color-accent: #376cff;
   --dark-color-accent: #4f7fff;
   --light-color-ink-2: #5f5f64;
@@ -54,12 +54,36 @@
   --dark-color-demo-alu-hi: #5a585d;
   --light-color-demo-alu-lo: #cdccd1;
   --dark-color-demo-alu-lo: #3b3a3e;
-  --light-color-moss-wash: color-mix(in srgb, var(--light-color-moss) 12%, var(--light-color-background));
-  --dark-color-moss-wash: color-mix(in srgb, var(--dark-color-moss) 14%, var(--dark-color-background));
-  --light-color-warning-wash: color-mix(in srgb, var(--light-color-warning) 12%, var(--light-color-background));
-  --dark-color-warning-wash: color-mix(in srgb, var(--dark-color-warning) 14%, var(--dark-color-background));
-  --light-color-error-wash: color-mix(in srgb, var(--light-color-error) 12%, var(--light-color-background));
-  --dark-color-error-wash: color-mix(in srgb, var(--dark-color-error) 14%, var(--dark-color-background));
+  --light-color-moss-wash: color-mix(
+    in srgb,
+    var(--light-color-moss) 12%,
+    var(--light-color-background)
+  );
+  --dark-color-moss-wash: color-mix(
+    in srgb,
+    var(--dark-color-moss) 14%,
+    var(--dark-color-background)
+  );
+  --light-color-warning-wash: color-mix(
+    in srgb,
+    var(--light-color-warning) 12%,
+    var(--light-color-background)
+  );
+  --dark-color-warning-wash: color-mix(
+    in srgb,
+    var(--dark-color-warning) 14%,
+    var(--dark-color-background)
+  );
+  --light-color-error-wash: color-mix(
+    in srgb,
+    var(--light-color-error) 12%,
+    var(--light-color-background)
+  );
+  --dark-color-error-wash: color-mix(
+    in srgb,
+    var(--dark-color-error) 14%,
+    var(--dark-color-background)
+  );
 
   /* Legacy aliases used by the onboarding demo. */
   --light-color-logo-primary: var(--light-color-accent);

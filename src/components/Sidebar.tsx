@@ -92,7 +92,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     .map(([id, config]) => ({ id: id as SidebarSection, ...config }));
 
   return (
-    <nav className="flex flex-col w-52 shrink-0 h-full bg-canvas">
+    <nav className="glass-pane flex flex-col w-52 shrink-0 h-full bg-canvas transition-[margin,border-radius] duration-300">
       {/* Inset title bar: the traffic lights sit here, and it drags the window. */}
       <div data-tauri-drag-region className="h-[52px] shrink-0" />
       {/* Wordmark: hand glyph + name in SF Pro Display, mono like Profound's. */}
@@ -116,7 +116,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               aria-current={isActive ? "page" : undefined}
               className={`group flex gap-2.5 items-center h-8 px-2.5 w-full rounded-[8px] cursor-pointer text-start transition-colors duration-150 ${
                 isActive
-                  ? "bg-line text-text"
+                  ? "bg-line-strong/70 text-text"
                   : "text-ink-2 hover:text-text hover:bg-wash"
               }`}
               onClick={() => onSectionChange(section.id)}

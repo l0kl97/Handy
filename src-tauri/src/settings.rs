@@ -701,7 +701,8 @@ fn default_sound_theme() -> SoundTheme {
 }
 
 fn default_theme() -> Theme {
-    Theme::System
+    // This fork is dark-first; users can still pick System or Light.
+    Theme::Dark
 }
 
 fn default_post_process_enabled() -> bool {

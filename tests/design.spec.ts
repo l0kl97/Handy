@@ -75,14 +75,16 @@ async function mockTauri(page: Page, mode: Mode) {
         convertFileSrc: (p: string) => p,
         invoke: async (cmd: string, args: Record<string, unknown> = {}) => {
           calls.push(cmd);
-          if (cmd === "plugin:window|set_effects")
-            w.__HANDY_LAST_EFFECTS__ = args.value ?? null;
           if (cmd === "get_app_settings" || cmd === "get_default_settings")
             return state;
           if (cmd === "change_glass_effect_setting") {
             // A test can make the settings write fail to check the rollback.
             if (w.__HANDY_FAIL_GLASS_WRITE__) throw new Error("write failed");
             state.glass_effect = args.enabled as boolean;
+            w.__HANDY_GLASS_WRITES__ = [
+              ...((w.__HANDY_GLASS_WRITES__ as boolean[]) ?? []),
+              args.enabled as boolean,
+            ];
             return null;
           }
           if (cmd.startsWith("plugin:macos-permissions")) return true;
@@ -169,6 +171,13 @@ for (const mode of [
   });
 }
 
+const glassWrites = (page: Page) =>
+  page.evaluate(
+    () =>
+      (window as unknown as { __HANDY_GLASS_WRITES__?: boolean[] })
+        .__HANDY_GLASS_WRITES__ ?? [],
+  );
+
 test("glass toggle switches the glass layer on and off", async ({ page }) => {
   await mockTauri(page, { theme: "dark", glass: false });
   await page.goto("/");
@@ -176,28 +185,19 @@ test("glass toggle switches the glass layer on and off", async ({ page }) => {
 
   const toggle = page.getByRole("checkbox", { name: /glass/i });
   await expect(toggle).not.toBeChecked();
+
+  // On: the setting is saved (Rust applies Liquid Glass) and the floating
+  // glass sidebar appears.
   await toggle.check({ force: true });
   await expect(page.locator("html")).toHaveAttribute("data-glass", "on");
+  expect(await glassWrites(page)).toEqual([true]);
+  await expect(page.locator("nav")).toHaveCSS("border-top-left-radius", "18px");
 
-  const lastEffects = () =>
-    page.evaluate(
-      () =>
-        (window as unknown as { __HANDY_LAST_EFFECTS__: unknown })
-          .__HANDY_LAST_EFFECTS__,
-    );
-  const calls = await page.evaluate(
-    () =>
-      (window as unknown as { __HANDY_IPC_CALLS__: string[] })
-        .__HANDY_IPC_CALLS__,
-  );
-  expect(calls).toContain("change_glass_effect_setting");
-  // On: the native sidebar vibrancy material is requested.
-  expect(await lastEffects()).toMatchObject({ effects: ["sidebar"] });
-
-  // Off: Tauri's clearEffects() sends set_effects with a null value.
+  // Off: saved as false, back to the opaque layout.
   await toggle.uncheck({ force: true });
   await expect(page.locator("html")).not.toHaveAttribute("data-glass");
-  expect(await lastEffects()).toBeNull();
+  expect(await glassWrites(page)).toEqual([true, false]);
+  await expect(page.locator("nav")).toHaveCSS("border-top-left-radius", "0px");
 });
 
 test("glass rolls back when the settings write fails", async ({ page }) => {
@@ -213,16 +213,9 @@ test("glass rolls back when the settings write fails", async ({ page }) => {
   // click, not check(): the switch is expected to snap back.
   await toggle.click({ force: true });
 
-  // The write failed: the switch, the page and the window all fall back to off.
+  // The write failed: the switch, the page and the boot cache fall back to off.
   await expect(toggle).not.toBeChecked();
   await expect(page.locator("html")).not.toHaveAttribute("data-glass");
-  expect(
-    await page.evaluate(
-      () =>
-        (window as unknown as { __HANDY_LAST_EFFECTS__: unknown })
-          .__HANDY_LAST_EFFECTS__,
-    ),
-  ).toBeNull();
   expect(await page.evaluate(() => localStorage.getItem("handy.glass"))).toBe(
     "0",
   );
