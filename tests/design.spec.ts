@@ -235,8 +235,8 @@ test("reduce transparency makes the glass layers opaque", async ({ page }) => {
   const navBg = await nav.evaluate(
     (el) => getComputedStyle(el).backgroundColor,
   );
-  // An opaque colour: rgb(...) or an rgba with alpha 1.
-  expect(navBg).toMatch(/^rgb\(|, 1\)$/);
+  // Opaque: rgb(...), rgba(..., 1) or color(srgb r g b) without an alpha part.
+  expect(navBg).toMatch(/^rgb\(|, 1\)$|^color\(srgb [\d.]+ [\d.]+ [\d.]+\)$/);
 
   const card = page.locator(".glass-card").first();
   await expect(card).toHaveCSS("backdrop-filter", "none");

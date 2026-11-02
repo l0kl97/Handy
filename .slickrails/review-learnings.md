@@ -20,3 +20,4 @@ Keep entries short and specific — this file is read verbatim by reviewers.
 
 - 2026-11-02: Tighten: in generated CSS, flag any custom property used without `var()` inside color-mix() or other functions. The theme generator emitted `color-mix(in srgb, --x 12%, --y)`, which is invalid and silently blanked every status wash. The design smoke test now resolves the wash tokens.
 - 2026-11-02: Tighten: an optimistic UI side effect (window effects, DOM attributes, localStorage) must be re-synced from the store after `updateSetting`, which swallows write errors and only reverts the store.
+- 2026-11-02: Process: a commit went out with a red Playwright test because only the last summary line ("7 passed") was read and "1 failed" was hidden above it. Read the full pass/fail summary, and consider adding `bun run test:playwright` to CHECK_TEST so pre-push catches it.
