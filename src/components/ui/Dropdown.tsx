@@ -39,6 +39,15 @@ export const Dropdown: React.FC<DropdownProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Fork: bring the current choice into view when a long menu opens.
+  useEffect(() => {
+    if (!isOpen) return;
+    menuRef.current
+      ?.querySelector<HTMLElement>("[data-chosen]")
+      ?.scrollIntoView({ block: "nearest" });
+  }, [isOpen]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -116,7 +125,8 @@ export const Dropdown: React.FC<DropdownProps> = ({
       </button>
       {isOpen && !disabled && (
         <div
-          className={`absolute ${placement === "above" ? "bottom-full mb-1" : "top-full mt-1"} bg-background border border-line rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto p-1 ${
+          ref={menuRef}
+          className={`absolute ${placement === "above" ? "bottom-full mb-1" : "top-full mt-1"} bg-popover border border-line-strong rounded-[10px] shadow-[0_12px_32px_-8px_rgba(0,0,0,0.55)] z-50 max-h-[min(360px,60vh)] overflow-y-auto p-1 ${
             menuClassName ?? "left-0 right-0"
           }`}
         >
@@ -131,6 +141,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
                 <button
                   key={option.value}
                   type="button"
+                  data-chosen={isChosen ? "" : undefined}
                   className={`flex w-full items-center gap-2 rounded-[6px] px-2 text-[13px] text-start transition-colors duration-150 ${
                     option.description ? "py-2" : "py-1.5"
                   } ${isChosen ? chosen : "hover:bg-wash"} ${

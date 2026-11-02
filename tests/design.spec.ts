@@ -36,6 +36,7 @@ const SETTINGS = {
   post_process_enabled: false,
   update_checks_enabled: true,
   debug_mode: false,
+  model_unload_timeout: "min5",
   custom_words: [],
 };
 
@@ -300,6 +301,7 @@ test("reduce transparency makes the glass layers opaque", async ({ page }) => {
   // Opaque: rgb(...), rgba(..., 1) or color(srgb r g b) without an alpha part.
   expect(navBg).toMatch(/^rgb\(|, 1\)$|^color\(srgb [\d.]+ [\d.]+ [\d.]+\)$/);
 
+  // Cards never get a backdrop-filter (dropdowns must rise above them).
   const card = page.locator(".glass-card").first();
   await expect(card).toHaveCSS("backdrop-filter", "none");
 });
@@ -467,3 +469,38 @@ test("the tallest bar keeps clear of the chart heading", async ({ page }) => {
   // At least 16px between the heading's bottom and the bar's top.
   expect(b!.y - (h!.y + h!.height)).toBeGreaterThanOrEqual(16);
 });
+
+for (const glass of [false, true]) {
+  test(`open dropdown sits above the next card (glass ${glass ? "on" : "off"})`, async ({
+    page,
+  }) => {
+    await mockTauri(page, { theme: "dark", glass });
+    await page.setViewportSize({ width: 1040, height: 900 });
+    await page.goto("/");
+    await page.locator("nav").getByRole("button", { name: "Advanced" }).click();
+    // Open "Unload Model" and look at its last option, which hangs over the
+    // next settings card.
+    await page
+      .getByRole("button", { name: /After 5 minutes|5 minutes/ })
+      .first()
+      .click();
+    const option = page.getByText("After 1 hour", { exact: true });
+    await expect(option).toBeVisible();
+    const box = (await option.boundingBox())!;
+    const topmost = await page.evaluate(
+      ([x, y]) => {
+        const el = document.elementFromPoint(x, y);
+        return el?.textContent?.trim() ?? "";
+      },
+      [box.x + box.width / 2, box.y + box.height / 2],
+    );
+    expect(topmost).toContain("After 1 hour");
+    // The menu is opaque: nothing behind it shows through.
+    const bg = await option.evaluate((el) => {
+      let n: HTMLElement | null = el as HTMLElement;
+      while (n && !n.className.includes("absolute")) n = n.parentElement;
+      return n ? getComputedStyle(n).backgroundColor : "";
+    });
+    expect(bg).not.toMatch(/rgba\(.*, 0\.\d+\)|\/ 0\.\d+\)/);
+  });
+}

@@ -172,6 +172,9 @@
   --color-background-ui: var(--color-accent);
   --color-on-accent: #160c04;
 
+  /* Menus and popovers: always opaque, even in glass mode. */
+  --color-popover: var(--light-color-surface);
+
   /* Edge of a picked card or option. */
   --color-plum-pick: color-mix(in srgb, var(--color-plum) 60%, transparent);
   /* The far end of a capture slot's breathing edge (KeySlot). */
@@ -180,6 +183,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
+    --color-popover: #1f1f22;
     --color-text: var(--dark-color-text);
     --color-canvas: color-mix(
       in srgb,
@@ -233,6 +237,7 @@
  * so the settings window and the recording overlay both honour it.
  */
 :root[data-theme="light"] {
+  --color-popover: var(--light-color-surface);
   --color-text: var(--light-color-text);
   --color-canvas: color-mix(
     in srgb,
@@ -280,6 +285,7 @@
 }
 
 :root[data-theme="dark"] {
+  --color-popover: #1f1f22;
   --color-text: var(--dark-color-text);
   --color-canvas: color-mix(
     in srgb,
