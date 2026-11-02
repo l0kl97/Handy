@@ -34,6 +34,21 @@ const at = (daysAgo: number, hour = 10) => {
 check("minutesSaved formula", near(minutesSaved(150), 2.75), minutesSaved(150));
 check("minutesSaved never negative", minutesSaved(-10) === 0);
 
+// Jonah's case: 460 words → typing 11.5 min, speaking ~3.07 min, ~8.43 saved.
+check("460 words at 40 wpm", near(minutesSaved(460, 40), 11.5 - 460 / 150));
+// A faster typist saves less: 460 words at 80 wpm → 5.75 − 3.07.
+check("460 words at 80 wpm", near(minutesSaved(460, 80), 5.75 - 460 / 150));
+// Typing faster than speaking saves nothing (not negative).
+check("typing faster than speaking", minutesSaved(460, 200) === 0);
+{
+  const slow = computeInsights([{ timestamp: at(0), words: 460 }], now, 40);
+  const fast = computeInsights([{ timestamp: at(0), words: 460 }], now, 80);
+  check(
+    "typing speed lowers savings",
+    fast.weekMinutesSaved < slow.weekMinutesSaved,
+  );
+}
+
 // Bucketing: today, yesterday, 6 days ago count; 7 days ago does not.
 {
   const s = computeInsights(

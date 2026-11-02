@@ -915,7 +915,10 @@
     "portableUpdateMessage": "Портативные установки нельзя обновить автоматически. Скачайте ниже установщик для вашей системы, запустите его и установите в ту же папку — папка Data/ (настройки, модели, записи) останется на месте.",
     "portableUpdateButton": "Скачать установщик",
     "portableUpdateBrowseMessage": "Портативные установки нельзя обновить автоматически. Скачайте последнюю версию для вашей системы со страницы GitHub Releases и установите её в ту же папку — папка Data/ (настройки, модели, записи) останется на месте.",
-    "portableUpdateBrowseButton": "Открыть GitHub Releases"
+    "portableUpdateBrowseButton": "Открыть GitHub Releases",
+    "upstreamAvailable": "Handy {{version}} available",
+    "upstreamNotes": "Open the release notes. Updates are merged into your fork, not installed directly.",
+    "upstreamCheckFailed": "Update check failed"
   },
   "whatsNew": {
     "title": "Новое в Handy v{{version}}"
@@ -1021,8 +1024,12 @@
       "minutes": "min",
       "hours": "h"
     },
-    "assumption": "Estimate: typing about {{typing}} words per minute vs. speaking about {{speaking}}.",
     "empty": "Dictate something and your time saved shows up here.",
-    "error": "Couldn't load your stats."
+    "error": "Couldn't load your stats.",
+    "math": "{{words}} words: typing ≈ {{typing}} min, speaking ≈ {{speaking}} min",
+    "typingSpeed": "Your typing speed",
+    "wpm_one": "{{count}} word/min",
+    "wpm_other": "{{count}} words/min",
+    "speakingNote": "Speaking ≈ {{speaking}} words/min (estimate)"
   }
 }

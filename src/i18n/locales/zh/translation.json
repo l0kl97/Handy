@@ -915,7 +915,10 @@
     "portableUpdateMessage": "便携版无法自动更新。请通过下方按钮下载适用于你的系统的安装程序，运行后安装到同一文件夹，你的 Data/ 文件夹（设置、模型、录音）会保留在原处。",
     "portableUpdateButton": "下载安装程序",
     "portableUpdateBrowseMessage": "便携版无法自动更新。请从 GitHub Releases 下载适用于你的系统的最新版本，并安装到同一文件夹，你的 Data/ 文件夹（设置、模型、录音）会保留在原处。",
-    "portableUpdateBrowseButton": "打开 GitHub Releases"
+    "portableUpdateBrowseButton": "打开 GitHub Releases",
+    "upstreamAvailable": "Handy {{version}} available",
+    "upstreamNotes": "Open the release notes. Updates are merged into your fork, not installed directly.",
+    "upstreamCheckFailed": "Update check failed"
   },
   "whatsNew": {
     "title": "Handy v{{version}} 新功能"
@@ -1021,8 +1024,12 @@
       "minutes": "min",
       "hours": "h"
     },
-    "assumption": "Estimate: typing about {{typing}} words per minute vs. speaking about {{speaking}}.",
     "empty": "Dictate something and your time saved shows up here.",
-    "error": "Couldn't load your stats."
+    "error": "Couldn't load your stats.",
+    "math": "{{words}} words: typing ≈ {{typing}} min, speaking ≈ {{speaking}} min",
+    "typingSpeed": "Your typing speed",
+    "wpm_one": "{{count}} word/min",
+    "wpm_other": "{{count}} words/min",
+    "speakingNote": "Speaking ≈ {{speaking}} words/min (estimate)"
   }
 }

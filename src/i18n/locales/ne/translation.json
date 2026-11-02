@@ -915,7 +915,10 @@
     "portableUpdateMessage": "पोर्टेबल इन्स्टलहरू स्वतः अपडेट गर्न सकिँदैन। तलबाट आफ्नो प्रणालीका लागि इन्स्टलर डाउनलोड गर्नुहोस्, चलाउनुहोस् र उही फोल्डरमा इन्स्टल गर्नुहोस् — तपाईंको Data/ फोल्डर (सेटिङ, मोडेल, रेकर्डिङ) जस्ताको तस्तै रहन्छ।",
     "portableUpdateButton": "इन्स्टलर डाउनलोड गर्नुहोस्",
     "portableUpdateBrowseMessage": "पोर्टेबल इन्स्टलहरू स्वतः अपडेट गर्न सकिँदैन। GitHub Releases बाट आफ्नो प्रणालीका लागि पछिल्लो संस्करण डाउनलोड गर्नुहोस् र उही फोल्डरमा इन्स्टल गर्नुहोस् — तपाईंको Data/ फोल्डर (सेटिङ, मोडेल, रेकर्डिङ) जस्ताको तस्तै रहन्छ।",
-    "portableUpdateBrowseButton": "GitHub Releases खोल्नुहोस्"
+    "portableUpdateBrowseButton": "GitHub Releases खोल्नुहोस्",
+    "upstreamAvailable": "Handy {{version}} available",
+    "upstreamNotes": "Open the release notes. Updates are merged into your fork, not installed directly.",
+    "upstreamCheckFailed": "Update check failed"
   },
   "whatsNew": {
     "title": "Handy v{{version}} मा नयाँ"
@@ -1021,8 +1024,12 @@
       "minutes": "min",
       "hours": "h"
     },
-    "assumption": "Estimate: typing about {{typing}} words per minute vs. speaking about {{speaking}}.",
     "empty": "Dictate something and your time saved shows up here.",
-    "error": "Couldn't load your stats."
+    "error": "Couldn't load your stats.",
+    "math": "{{words}} words: typing ≈ {{typing}} min, speaking ≈ {{speaking}} min",
+    "typingSpeed": "Your typing speed",
+    "wpm_one": "{{count}} word/min",
+    "wpm_other": "{{count}} words/min",
+    "speakingNote": "Speaking ≈ {{speaking}} words/min (estimate)"
   }
 }

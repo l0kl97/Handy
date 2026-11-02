@@ -30,6 +30,7 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 import { FileDropOverlay } from "./components/FileDropOverlay";
 import { Sidebar, SidebarSection, SECTIONS_CONFIG } from "./components/Sidebar";
 import { WhatsNewGate } from "./components/whats-new";
+import { PageTitleContext } from "./components/ui/pageTitle";
 import { useSettings } from "./hooks/useSettings";
 import { useSettingsStore } from "./stores/settingsStore";
 import { commands } from "@/bindings";
@@ -339,7 +340,7 @@ function App() {
               {/* Same column as the page content below, so edges line up. */}
               <h1
                 data-tauri-drag-region
-                className="mx-auto w-full max-w-3xl px-1 text-[14px] font-medium tracking-[-0.01em] text-text"
+                className="mx-auto w-full max-w-3xl px-1 text-[15px] font-medium tracking-[-0.01em] text-text"
               >
                 {t(
                   SECTIONS_CONFIG[currentSection]?.labelKey ??
@@ -347,22 +348,28 @@ function App() {
                 )}
               </h1>
             </header>
-            {/* Scrollable content area */}
-            <div ref={settingsScrollRef} className="flex-1 overflow-y-auto">
-              {/* Models fills the panel: its table scrolls, not the page. */}
-              <div
-                className={`flex flex-col items-center px-8 pt-2 pb-8 gap-4 ${currentSection === "models" ? "h-full" : ""}`}
-              >
-                <SecureInputWarning />
-                {renderSettingsContent(
-                  currentSection,
-                  setOnboardingPreview,
-                  runOnboarding,
-                  runModelMigration,
-                  setCurrentSection,
-                )}
+            <PageTitleContext.Provider
+              value={t(
+                SECTIONS_CONFIG[currentSection]?.labelKey ?? "sidebar.general",
+              )}
+            >
+              {/* Scrollable content area */}
+              <div ref={settingsScrollRef} className="flex-1 overflow-y-auto">
+                {/* Models fills the panel: its table scrolls, not the page. */}
+                <div
+                  className={`flex flex-col items-center px-8 pt-2 pb-8 gap-4 ${currentSection === "models" ? "h-full" : ""}`}
+                >
+                  <SecureInputWarning />
+                  {renderSettingsContent(
+                    currentSection,
+                    setOnboardingPreview,
+                    runOnboarding,
+                    runModelMigration,
+                    setCurrentSection,
+                  )}
+                </div>
               </div>
-            </div>
+            </PageTitleContext.Provider>
             <Footer onShowHistory={showHistory} />
           </main>
         </div>

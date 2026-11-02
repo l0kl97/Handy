@@ -1,278 +1,134 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import { check } from "@tauri-apps/plugin-updater";
-import { relaunch } from "@tauri-apps/plugin-process";
 import { listen } from "@tauri-apps/api/event";
+import { getVersion } from "@tauri-apps/api/app";
 import { openUrl } from "@tauri-apps/plugin-opener";
-import { arch, platform } from "@tauri-apps/plugin-os";
-import { ProgressBar } from "../shared";
 import { useSettings } from "../../hooks/useSettings";
-import { commands } from "../../bindings";
 import {
-  resolvePortableInstallerUrl,
-  PORTABLE_RELEASES_URL,
-} from "./portableInstaller";
+  fetchLatestUpstream,
+  isNewer,
+  type UpstreamRelease,
+} from "@/lib/updates/upstream";
 
 interface UpdateCheckerProps {
   className?: string;
 }
 
+/**
+ * Fork: notice-only update check. This build is a fork of Handy, so the
+ * official updater would replace it with stock Handy; it is never used.
+ * Instead we tell the user when upstream has a newer release and link to its
+ * notes. Bringing it into the fork is a merge (docs/features/upstream-updates.md).
+ */
 const UpdateChecker: React.FC<UpdateCheckerProps> = ({ className = "" }) => {
   const { t } = useTranslation();
-  // Update checking state
   const [isChecking, setIsChecking] = useState(false);
-  const [updateAvailable, setUpdateAvailable] = useState(false);
-  const [isInstalling, setIsInstalling] = useState(false);
-  const [downloadProgress, setDownloadProgress] = useState(0);
+  const [release, setRelease] = useState<UpstreamRelease | null>(null);
   const [showUpToDate, setShowUpToDate] = useState(false);
-  const [showPortableUpdateDialog, setShowPortableUpdateDialog] =
-    useState(false);
-  const [portableInstallerUrl, setPortableInstallerUrl] = useState<string>(
-    PORTABLE_RELEASES_URL,
-  );
+  const [failed, setFailed] = useState(false);
+  const upToDateTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const checkingRef = useRef(false);
 
   const { settings, isLoading, updateChecksLocked } = useSettings();
-  // Wait for the lock state too (null = not loaded yet), otherwise the first
-  // render could fire an update check before HANDY_DISABLE_UPDATER is known.
   const settingsLoaded =
     !isLoading && settings !== null && updateChecksLocked !== null;
-  // Forced-off by system configuration (HANDY_DISABLE_UPDATER) overrides the
-  // stored preference without persisting it, mirroring the backend's effective
-  // updater state.
   const updateChecksEnabled =
     (settings?.update_checks_enabled ?? false) && updateChecksLocked === false;
 
-  const upToDateTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
-  const isManualCheckRef = useRef(false);
-  const downloadedBytesRef = useRef(0);
-  const contentLengthRef = useRef(0);
-
-  useEffect(() => {
-    // Wait for settings to load before doing anything
-    if (!settingsLoaded) return;
-
-    if (!updateChecksEnabled) {
-      if (upToDateTimeoutRef.current) {
-        clearTimeout(upToDateTimeoutRef.current);
-      }
-      setIsChecking(false);
-      setUpdateAvailable(false);
-      setShowUpToDate(false);
-      return;
-    }
-
-    checkForUpdates();
-
-    // Listen for update check events
-    const updateUnlisten = listen("check-for-updates", () => {
-      handleManualUpdateCheck();
-    });
-
-    return () => {
-      if (upToDateTimeoutRef.current) {
-        clearTimeout(upToDateTimeoutRef.current);
-      }
-      updateUnlisten.then((fn) => fn());
-    };
-  }, [settingsLoaded, updateChecksEnabled]);
-
-  // Update checking functions
-  const checkForUpdates = async () => {
-    if (!updateChecksEnabled || isChecking) return;
-
+  const checkForUpdates = useCallback(async (manual: boolean) => {
+    if (checkingRef.current) return;
+    checkingRef.current = true;
+    setIsChecking(true);
+    setFailed(false);
     try {
-      setIsChecking(true);
-      const update = await check();
-
-      if (update) {
-        setUpdateAvailable(true);
-        setShowUpToDate(false);
-        // Portable installs can't self-update in place — the manual dialog links
-        // straight at the matching installer from this manifest instead.
-        setPortableInstallerUrl(
-          resolvePortableInstallerUrl(update.rawJson, platform(), arch()),
-        );
-      } else {
-        setUpdateAvailable(false);
-
-        if (isManualCheckRef.current) {
-          setShowUpToDate(true);
-          if (upToDateTimeoutRef.current) {
-            clearTimeout(upToDateTimeoutRef.current);
-          }
-          upToDateTimeoutRef.current = setTimeout(() => {
-            setShowUpToDate(false);
-          }, 3000);
-        }
-      }
-    } catch (error) {
-      console.error("Failed to check for updates:", error);
-    } finally {
-      setIsChecking(false);
-      isManualCheckRef.current = false;
-    }
-  };
-
-  const handleManualUpdateCheck = () => {
-    if (!updateChecksEnabled) return;
-    isManualCheckRef.current = true;
-    checkForUpdates();
-  };
-
-  const installUpdate = async () => {
-    if (!updateChecksEnabled) return;
-
-    const portable = await commands.isPortable();
-    if (portable) {
-      setShowPortableUpdateDialog(true);
-      return;
-    }
-
-    try {
-      setIsInstalling(true);
-      setDownloadProgress(0);
-      downloadedBytesRef.current = 0;
-      contentLengthRef.current = 0;
-      const update = await check();
-
-      if (!update) {
-        console.log("No update available during install attempt");
+      const [latest, current] = await Promise.all([
+        fetchLatestUpstream(),
+        getVersion(),
+      ]);
+      if (!latest) {
+        setFailed(manual);
         return;
       }
-
-      await update.downloadAndInstall((event) => {
-        switch (event.event) {
-          case "Started":
-            downloadedBytesRef.current = 0;
-            contentLengthRef.current = event.data.contentLength ?? 0;
-            break;
-          case "Progress":
-            downloadedBytesRef.current += event.data.chunkLength;
-            const progress =
-              contentLengthRef.current > 0
-                ? Math.round(
-                    (downloadedBytesRef.current / contentLengthRef.current) *
-                      100,
-                  )
-                : 0;
-            setDownloadProgress(Math.min(progress, 100));
-            break;
+      if (isNewer(latest.version, current)) {
+        setRelease(latest);
+        setShowUpToDate(false);
+      } else {
+        setRelease(null);
+        if (manual) {
+          setShowUpToDate(true);
+          clearTimeout(upToDateTimeoutRef.current);
+          upToDateTimeoutRef.current = setTimeout(
+            () => setShowUpToDate(false),
+            3000,
+          );
         }
-      });
-      await relaunch();
-    } catch (error) {
-      console.error("Failed to install update:", error);
+      }
+    } catch (e) {
+      console.warn("Update check failed:", e);
+      setFailed(manual);
     } finally {
-      setIsInstalling(false);
-      setDownloadProgress(0);
-      downloadedBytesRef.current = 0;
-      contentLengthRef.current = 0;
+      checkingRef.current = false;
+      setIsChecking(false);
     }
-  };
+  }, []);
 
-  // Update status functions
-  const getUpdateStatusText = () => {
+  useEffect(() => {
+    if (!settingsLoaded) return;
     if (!updateChecksEnabled) {
-      return t("footer.updateCheckingDisabled");
+      clearTimeout(upToDateTimeoutRef.current);
+      setRelease(null);
+      setShowUpToDate(false);
+      setFailed(false);
+      return;
     }
-    if (isInstalling) {
-      return downloadProgress > 0 && downloadProgress < 100
-        ? t("footer.downloading", {
-            progress: downloadProgress.toString().padStart(3),
-          })
-        : downloadProgress === 100
-          ? t("footer.installing")
-          : t("footer.preparing");
-    }
-    if (isChecking) return t("footer.checkingUpdates");
-    if (showUpToDate) return t("footer.upToDate");
-    if (updateAvailable) return t("footer.updateAvailableShort");
-    return t("footer.checkForUpdates");
-  };
+    checkForUpdates(false);
+    // The tray's "Check for updates" lands here too.
+    const unlisten = listen("check-for-updates", () => checkForUpdates(true));
+    return () => {
+      clearTimeout(upToDateTimeoutRef.current);
+      unlisten.then((fn) => fn());
+    };
+  }, [settingsLoaded, updateChecksEnabled, checkForUpdates]);
 
-  const getUpdateStatusAction = () => {
-    if (!updateChecksEnabled) return undefined;
-    if (updateAvailable && !isInstalling) return installUpdate;
-    if (!isChecking && !isInstalling && !updateAvailable)
-      return handleManualUpdateCheck;
-    return undefined;
-  };
+  if (!updateChecksEnabled) {
+    return (
+      <span className={`text-ink-2 tabular-nums ${className}`}>
+        {t("footer.updateCheckingDisabled")}
+      </span>
+    );
+  }
 
-  const isUpdateDisabled = !updateChecksEnabled || isChecking || isInstalling;
-  const isUpdateClickable =
-    !isUpdateDisabled && (updateAvailable || (!isChecking && !showUpToDate));
+  if (release) {
+    return (
+      <button
+        type="button"
+        onClick={() => openUrl(release.url)}
+        title={t("footer.upstreamNotes")}
+        className={`inline-flex items-center gap-1.5 font-medium text-accent transition-opacity hover:opacity-80 ${className}`}
+      >
+        <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+        {t("footer.upstreamAvailable", { version: release.version })}
+      </button>
+    );
+  }
 
-  // When no installer could be resolved for this target the button falls back to
-  // the releases index, so the dialog has to say "browse" rather than "download".
-  const hasDirectInstaller = portableInstallerUrl !== PORTABLE_RELEASES_URL;
+  const label = isChecking
+    ? t("footer.checkingUpdates")
+    : showUpToDate
+      ? t("footer.upToDate")
+      : failed
+        ? t("footer.upstreamCheckFailed")
+        : t("footer.checkForUpdates");
 
   return (
-    <>
-      {showPortableUpdateDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-background border border-line rounded-lg p-6 max-w-md w-full mx-4 space-y-4">
-            <h2 className="text-base font-semibold">
-              {t("footer.portableUpdateTitle")}
-            </h2>
-            <p className="text-sm text-ink-2">
-              {hasDirectInstaller
-                ? t("footer.portableUpdateMessage")
-                : t("footer.portableUpdateBrowseMessage")}
-            </p>
-            <div className="flex gap-2 justify-end">
-              <button
-                className="px-3 py-1.5 text-sm rounded border border-line hover:bg-wash transition-colors"
-                onClick={() => setShowPortableUpdateDialog(false)}
-              >
-                {t("common.close")}
-              </button>
-              <button
-                className="px-3 py-1.5 text-sm rounded bg-accent text-on-accent hover:bg-accent/85 transition-colors"
-                onClick={() => {
-                  openUrl(portableInstallerUrl);
-                  setShowPortableUpdateDialog(false);
-                }}
-              >
-                {hasDirectInstaller
-                  ? t("footer.portableUpdateButton")
-                  : t("footer.portableUpdateBrowseButton")}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-      <div className={`flex items-center gap-3 ${className}`}>
-        {isUpdateClickable ? (
-          <button
-            onClick={getUpdateStatusAction()}
-            disabled={isUpdateDisabled}
-            className={`transition-colors disabled:opacity-50 tabular-nums ${
-              updateAvailable
-                ? "text-logo-primary hover:text-logo-primary font-medium"
-                : "text-ink-2 hover:text-text"
-            }`}
-          >
-            {getUpdateStatusText()}
-          </button>
-        ) : (
-          <span className="text-ink-2 tabular-nums">
-            {getUpdateStatusText()}
-          </span>
-        )}
-
-        {isInstalling && downloadProgress > 0 && downloadProgress < 100 && (
-          <ProgressBar
-            progress={[
-              {
-                id: "update",
-                percentage: downloadProgress,
-              },
-            ]}
-            size="large"
-          />
-        )}
-      </div>
-    </>
+    <button
+      type="button"
+      onClick={() => checkForUpdates(true)}
+      disabled={isChecking}
+      className={`text-ink-2 tabular-nums transition-colors hover:text-text disabled:opacity-60 ${className}`}
+    >
+      {label}
+    </button>
   );
 };
 

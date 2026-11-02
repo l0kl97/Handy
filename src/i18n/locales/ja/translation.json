@@ -915,7 +915,10 @@
     "portableUpdateMessage": "ポータブル版は自動的に更新できません。下のボタンからお使いのシステム向けのインストーラーをダウンロードし、実行して同じフォルダーにインストールしてください。Data フォルダー(設定、モデル、録音)はそのまま残ります。",
     "portableUpdateButton": "インストーラーをダウンロード",
     "portableUpdateBrowseMessage": "ポータブル版は自動的に更新できません。GitHub Releases からお使いのシステム向けの最新版をダウンロードし、同じフォルダーにインストールしてください。Data フォルダー(設定、モデル、録音)はそのまま残ります。",
-    "portableUpdateBrowseButton": "GitHub Releases を開く"
+    "portableUpdateBrowseButton": "GitHub Releases を開く",
+    "upstreamAvailable": "Handy {{version}} available",
+    "upstreamNotes": "Open the release notes. Updates are merged into your fork, not installed directly.",
+    "upstreamCheckFailed": "Update check failed"
   },
   "whatsNew": {
     "title": "Handy v{{version}} の新機能"
@@ -1021,8 +1024,12 @@
       "minutes": "min",
       "hours": "h"
     },
-    "assumption": "Estimate: typing about {{typing}} words per minute vs. speaking about {{speaking}}.",
     "empty": "Dictate something and your time saved shows up here.",
-    "error": "Couldn't load your stats."
+    "error": "Couldn't load your stats.",
+    "math": "{{words}} words: typing ≈ {{typing}} min, speaking ≈ {{speaking}} min",
+    "typingSpeed": "Your typing speed",
+    "wpm_one": "{{count}} word/min",
+    "wpm_other": "{{count}} words/min",
+    "speakingNote": "Speaking ≈ {{speaking}} words/min (estimate)"
   }
 }

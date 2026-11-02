@@ -915,7 +915,10 @@
     "portableUpdateMessage": "התקנות ניידות אינן מתעדכנות אוטומטית. הורד למטה את המתקין המתאים למערכת שלך, הפעל אותו והתקן לאותה תיקייה — תיקיית Data/ (הגדרות, מודלים, הקלטות) נשמרת במקומה.",
     "portableUpdateButton": "הורדת המתקין",
     "portableUpdateBrowseMessage": "התקנות ניידות אינן מתעדכנות אוטומטית. הורד את הגרסה האחרונה המתאימה למערכת שלך מ-GitHub Releases והתקן אותה לאותה תיקייה — תיקיית Data/ (הגדרות, מודלים, הקלטות) נשמרת במקומה.",
-    "portableUpdateBrowseButton": "פתח את GitHub Releases"
+    "portableUpdateBrowseButton": "פתח את GitHub Releases",
+    "upstreamAvailable": "Handy {{version}} available",
+    "upstreamNotes": "Open the release notes. Updates are merged into your fork, not installed directly.",
+    "upstreamCheckFailed": "Update check failed"
   },
   "whatsNew": {
     "title": "חדש ב-Handy v{{version}}"
@@ -1021,8 +1024,12 @@
       "minutes": "min",
       "hours": "h"
     },
-    "assumption": "Estimate: typing about {{typing}} words per minute vs. speaking about {{speaking}}.",
     "empty": "Dictate something and your time saved shows up here.",
-    "error": "Couldn't load your stats."
+    "error": "Couldn't load your stats.",
+    "math": "{{words}} words: typing ≈ {{typing}} min, speaking ≈ {{speaking}} min",
+    "typingSpeed": "Your typing speed",
+    "wpm_one": "{{count}} word/min",
+    "wpm_other": "{{count}} words/min",
+    "speakingNote": "Speaking ≈ {{speaking}} words/min (estimate)"
   }
 }

@@ -50,19 +50,6 @@ export const Gauge: React.FC<GaugeProps> = ({
         viewBox={`0 0 ${SIZE} ${SIZE}`}
         className="absolute inset-0 overflow-visible"
       >
-        <defs>
-          <linearGradient id="gauge-fill" x1="0" y1="1" x2="1" y2="0">
-            <stop
-              offset="0%"
-              stopColor="var(--color-accent)"
-              stopOpacity="0.55"
-            />
-            <stop offset="100%" stopColor="var(--color-accent)" />
-          </linearGradient>
-          <filter id="gauge-glow" x="-30%" y="-30%" width="160%" height="160%">
-            <feGaussianBlur stdDeviation="6" />
-          </filter>
-        </defs>
         {/* Track */}
         <path
           d={arcPath(START, START + SWEEP)}
@@ -88,38 +75,31 @@ export const Gauge: React.FC<GaugeProps> = ({
             />
           );
         })}
+        {/* Value arc: one flat amber, like the bars below (no glow) */}
         {p > 0.001 && (
-          <>
-            {/* Soft glow under the value arc */}
-            <path
-              d={arcPath(START, end)}
-              fill="none"
-              stroke="var(--color-accent)"
-              strokeOpacity={0.45}
-              strokeWidth={16}
-              strokeLinecap="round"
-              filter="url(#gauge-glow)"
-            />
-            <path
-              d={arcPath(START, end)}
-              fill="none"
-              stroke="url(#gauge-fill)"
-              strokeWidth={16}
-              strokeLinecap="round"
-              className="transition-all duration-700"
-            />
-          </>
+          <path
+            d={arcPath(START, end)}
+            fill="none"
+            stroke="var(--color-accent)"
+            strokeWidth={16}
+            strokeLinecap="round"
+            className="transition-all duration-700"
+          />
         )}
-        {/* Needle knob: a white bar across the arc at the value */}
-        <line
-          x1={polar(end, R - 12).x}
-          y1={polar(end, R - 12).y}
-          x2={polar(end, R + 12).x}
-          y2={polar(end, R + 12).y}
-          stroke="#ffffff"
-          strokeWidth={5}
-          strokeLinecap="round"
-          style={{ filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.5))" }}
+        {/* Value knob: a white disc riding on the track (no crossbar). */}
+        <circle
+          cx={polar(end).x}
+          cy={polar(end).y}
+          r={9}
+          fill="#ffffff"
+          stroke="var(--color-surface)"
+          strokeWidth={2}
+        />
+        <circle
+          cx={polar(end).x}
+          cy={polar(end).y}
+          r={3.5}
+          fill="var(--color-accent)"
         />
         {/* Tick labels outside the arc */}
         {ticks.map((label, i) => {

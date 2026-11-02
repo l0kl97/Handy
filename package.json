@@ -16,6 +16,7 @@
     "format:backend": "cd src-tauri && cargo fmt",
     "test:keyboard": "bun src/lib/utils/keyboard.test.ts",
     "test:insights": "bun src/lib/stats/insights.test.ts",
+    "test:upstream": "bun src/lib/updates/upstream.test.ts",
     "test:playwright": "playwright test",
     "test:playwright:ui": "playwright test --ui",
     "check:translations": "bun scripts/check-translations.ts",

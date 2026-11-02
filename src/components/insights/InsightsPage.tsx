@@ -4,8 +4,12 @@ import { commands, events, type DictationWords } from "@/bindings";
 import {
   computeInsights,
   durationParts,
+  getTypingWpm,
+  setTypingWpm,
+  speakingMinutes,
+  typingMinutes,
   SPEAKING_WPM,
-  TYPING_WPM,
+  TYPING_WPM_OPTIONS,
   WEEKLY_GOAL_MINUTES,
 } from "@/lib/stats/insights";
 import { Gauge } from "./Gauge";
@@ -53,7 +57,11 @@ export const InsightsPage: React.FC = () => {
     };
   }, [load]);
 
-  const s = useMemo(() => computeInsights(entries ?? []), [entries]);
+  const [typingWpm, setTypingWpmState] = useState(getTypingWpm);
+  const s = useMemo(
+    () => computeInsights(entries ?? [], Date.now(), typingWpm),
+    [entries, typingWpm],
+  );
   const num = useMemo(
     () => new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 1 }),
     [i18n.language],
@@ -131,6 +139,22 @@ export const InsightsPage: React.FC = () => {
             {t("insights.gauge.goal", { value: WEEKLY_GOAL_MINUTES })}
           </span>
         </Gauge>
+        {s.weekWords > 0 && (
+          <p
+            className="mt-1 text-center text-[12px] text-ink-3"
+            style={{ fontVariantNumeric: "tabular-nums" }}
+          >
+            {t("insights.math", {
+              words: num.format(s.weekWords),
+              typing: num.format(
+                Math.round(typingMinutes(s.weekWords, typingWpm) * 10) / 10,
+              ),
+              speaking: num.format(
+                Math.round(speakingMinutes(s.weekWords) * 10) / 10,
+              ),
+            })}
+          </p>
+        )}
       </section>
 
       {/* Stat tiles */}
@@ -193,9 +217,7 @@ export const InsightsPage: React.FC = () => {
                 <div className="relative flex h-24 w-full items-end justify-center">
                   <div
                     className={`w-full max-w-9 rounded-[6px] transition-[height] duration-500 ${
-                      isToday
-                        ? "bg-accent shadow-[0_0_18px_-2px_var(--color-accent)]"
-                        : "bg-surface-2 border border-line"
+                      isToday ? "bg-accent" : "bg-surface-2 border border-line"
                     }`}
                     style={{ height: `${h}%` }}
                   />
@@ -214,12 +236,28 @@ export const InsightsPage: React.FC = () => {
       {s.dictations === 0 && (
         <p className="px-1 text-[13px] text-ink-2">{t("insights.empty")}</p>
       )}
-      <p className="px-1 text-[11px] text-ink-3">
-        {t("insights.assumption", {
-          typing: TYPING_WPM,
-          speaking: SPEAKING_WPM,
-        })}
-      </p>
+      {/* The assumption behind the numbers, with the user's own typing speed. */}
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 px-1 text-[12px] text-ink-3">
+        <label htmlFor="typing-wpm">{t("insights.typingSpeed")}</label>
+        <select
+          id="typing-wpm"
+          value={typingWpm}
+          onChange={(e) => {
+            const wpm = Number(e.target.value);
+            setTypingWpm(wpm);
+            setTypingWpmState(wpm);
+          }}
+          className="h-7 cursor-pointer rounded-[6px] border border-line bg-surface-2 px-1.5 text-[12px] text-text hover:border-line-strong"
+        >
+          {TYPING_WPM_OPTIONS.map((w) => (
+            <option key={w} value={w}>
+              {t("insights.wpm", { count: w })}
+            </option>
+          ))}
+        </select>
+        <span>·</span>
+        <span>{t("insights.speakingNote", { speaking: SPEAKING_WPM })}</span>
+      </div>
     </div>
   );
 };

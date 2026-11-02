@@ -34,13 +34,23 @@ const SETTINGS = {
   theme: "system",
   glass_effect: false,
   post_process_enabled: false,
+  update_checks_enabled: true,
   debug_mode: false,
   custom_words: [],
 };
 
 type Mode = { theme: "light" | "dark"; glass: boolean };
 
-async function mockTauri(page: Page, mode: Mode) {
+async function mockTauri(page: Page, mode: Mode, upstream = "v0.10.0") {
+  // Never hit the real GitHub API from tests.
+  await page.route("https://api.github.com/**", (route) =>
+    route.fulfill({
+      json: {
+        tag_name: upstream,
+        html_url: `https://github.com/cjpais/Handy/releases/tag/${upstream}`,
+      },
+    }),
+  );
   await page.addInitScript(
     ({ settings, mode }) => {
       const state = {
@@ -140,6 +150,7 @@ async function mockTauri(page: Page, mode: Mode) {
           }
           if (cmd.startsWith("plugin:macos-permissions")) return true;
           if (cmd === "plugin:app|version") return "0.10.0";
+          if (cmd === "is_update_checks_locked") return false;
           if (cmd.startsWith("plugin:event|listen")) return ++cb;
           if (
             /^(get|list).*(models|devices|languages|entries|notices|jobs|providers)/.test(
@@ -303,7 +314,7 @@ test("insights show time saved, tiles and the week", async ({ page }) => {
   await expect(gauge).toBeVisible();
   // 1,925 words this week → 1925/40 − 1925/150 ≈ 35 minutes.
   await expect(gauge).toHaveAttribute("aria-label", /^35 min/);
-  await expect(page.getByText("1,925")).toBeVisible();
+  await expect(page.getByText("1,925", { exact: true })).toBeVisible();
   await expect(page.getByRole("listitem")).toHaveCount(7);
   await expect(page.getByRole("alert")).toHaveCount(0);
   await page.screenshot({ path: "test-results/design/insights-dark.png" });
@@ -345,4 +356,72 @@ test("history still renders when the app context fails", async ({ page }) => {
   await page.locator("nav").getByRole("button", { name: "History" }).click();
   await expect(page.getByText("Kannst du mir bis morgen")).toBeVisible();
   await expect(page.getByTitle(/Dictated into/)).toHaveCount(0);
+});
+
+test("footer announces a newer upstream Handy without installing", async ({
+  page,
+}) => {
+  await mockTauri(page, { theme: "dark", glass: false }, "v0.11.0");
+  await page.goto("/");
+  const notice = page.getByRole("button", { name: "Handy 0.11.0 available" });
+  await expect(notice).toBeVisible();
+  await expect(notice).toHaveAttribute("title", /not installed directly/);
+});
+
+test("footer stays quiet when upstream is not newer", async ({ page }) => {
+  await mockTauri(page, { theme: "dark", glass: false }, "v0.10.0");
+  await page.goto("/");
+  await expect(
+    page.getByRole("button", { name: "Check for updates" }),
+  ).toBeVisible();
+  await expect(page.getByText(/available$/)).toHaveCount(0);
+});
+
+test("typing speed changes the time saved and shows the math", async ({
+  page,
+}) => {
+  await mockTauri(page, { theme: "dark", glass: false });
+  await page.goto("/");
+  const gauge = page.getByRole("img", { name: /saved this week/i });
+  await expect(gauge).toHaveAttribute("aria-label", /^35 min/);
+  // 1,925 words: typing at 40 wpm ≈ 48.1 min, speaking ≈ 12.8 min.
+  await expect(page.getByText(/1,925 words: typing ≈ 48\.1 min/)).toBeVisible();
+
+  // A faster typist: 1925/80 − 1925/150 ≈ 11 minutes saved.
+  await page.getByLabel("Your typing speed").selectOption("80");
+  await expect(gauge).toHaveAttribute("aria-label", /^11 min/);
+  // Remembered for next time.
+  await page.reload();
+  await expect(page.getByLabel("Your typing speed")).toHaveValue("80");
+});
+
+test("a group heading never repeats the page title", async ({ page }) => {
+  await mockTauri(page, { theme: "dark", glass: false });
+  await page.goto("/");
+  await page.locator("nav").getByRole("button", { name: "About" }).click();
+  await expect(page.locator("main h1")).toHaveText("About");
+  await expect(
+    page.getByRole("heading", { name: "About", exact: true }),
+  ).toHaveCount(1);
+});
+
+test("every page renders without errors", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  await mockTauri(page, { theme: "dark", glass: false });
+  await page.setViewportSize({ width: 1040, height: 760 });
+  await page.goto("/");
+  const buttons = page.locator("nav").getByRole("button");
+  const count = await buttons.count();
+  for (let i = 0; i < count; i++) {
+    const name = (await buttons.nth(i).innerText()).trim();
+    await buttons.nth(i).click();
+    await expect(page.locator("main h1")).toHaveText(name);
+    await page.waitForTimeout(150);
+    await page.screenshot({
+      path: `test-results/pages/${i}-${name.toLowerCase()}.png`,
+      fullPage: true,
+    });
+  }
+  expect(errors).toEqual([]);
 });

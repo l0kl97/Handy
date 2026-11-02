@@ -1,0 +1,53 @@
+# Fork: tell Jonah when upstream Handy ships a release newer than the version
+# this fork is based on. Opens one issue per release (needs Issues enabled on
+# the fork); without Issues the run fails on purpose, and GitHub's failed-run
+# email is the notice. Bringing the release in is a merge, see
+# docs/features/upstream-updates.md.
+name: Upstream watch
+
+on:
+  schedule:
+    - cron: "0 7 * * 1" # Mondays 07:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    # Only in the fork, never upstream.
+    if: github.repository == 'l0kl97/Handy'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compare with upstream's latest release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          latest=$(gh api repos/cjpais/Handy/releases/latest --jq .tag_name)
+          ours=$(jq -r .version package.json)
+          latest_v=${latest#v}
+          echo "upstream: $latest_v, fork base: $ours"
+
+          newest=$(printf '%s\n%s\n' "$ours" "$latest_v" | sort -V | tail -n1)
+          if [ "$newest" = "$ours" ]; then
+            echo "Up to date."
+            exit 0
+          fi
+
+          title="Upstream Handy $latest is out"
+          if ! gh api "repos/${GITHUB_REPOSITORY}" --jq .has_issues | grep -q true; then
+            echo "::error::$title (fork is on $ours). Enable Issues on the fork to get an issue instead of this failure."
+            exit 1
+          fi
+          if gh issue list --state all --search "\"$title\" in:title" --json number --jq 'length' | grep -qv '^0$'; then
+            echo "Issue already exists."
+            exit 0
+          fi
+          gh issue create --title "$title" --body "Upstream released [$latest](https://github.com/cjpais/Handy/releases/tag/$latest); this fork is based on $ours.
+
+          To bring it in: \`git fetch upstream && git merge upstream/main\` on \`jonah\`, run the checks, rebuild the app (see docs/features/upstream-updates.md)."

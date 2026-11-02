@@ -22,8 +22,25 @@ pub fn redact_text(text: &str) -> &str {
     }
 }
 
-/// Main window's opening and minimum page size, in logical pixels.
+/// Main window's minimum page size, in logical pixels (onboarding is laid
+/// out for exactly this).
 pub const MAIN_WINDOW_SIZE: (f64, f64) = (720.0, 600.0);
+
+/// Fork: the roomier size the main window opens at, clamped to the screen.
+pub const MAIN_WINDOW_DEFAULT_SIZE: (f64, f64) = (1040.0, 760.0);
+
+/// Fork: the opening size for a screen with `available` logical space: the
+/// default, shrunk to 90% of the screen when needed, never below the minimum.
+pub fn opening_window_size(available: Option<(f64, f64)>) -> (f64, f64) {
+    let (mut w, mut h) = MAIN_WINDOW_DEFAULT_SIZE;
+    if let Some((aw, ah)) = available {
+        if aw > 0.0 && ah > 0.0 {
+            w = w.min(aw * 0.9);
+            h = h.min(ah * 0.9);
+        }
+    }
+    (w.max(MAIN_WINDOW_SIZE.0), h.max(MAIN_WINDOW_SIZE.1))
+}
 
 /// Title bar height in logical pixels (macOS draws it inside the inner size).
 /// Call on the main thread.
@@ -187,6 +204,34 @@ pub fn env_flag_enabled(name: &str) -> bool {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn opening_size_is_the_default_on_a_big_screen() {
+        assert_eq!(
+            super::opening_window_size(Some((2560.0, 1440.0))),
+            super::MAIN_WINDOW_DEFAULT_SIZE
+        );
+        assert_eq!(
+            super::opening_window_size(None),
+            super::MAIN_WINDOW_DEFAULT_SIZE
+        );
+    }
+
+    #[test]
+    fn opening_size_shrinks_to_small_screens_but_not_below_the_minimum() {
+        assert_eq!(
+            super::opening_window_size(Some((1280.0, 800.0))),
+            (1040.0, 720.0)
+        );
+        assert_eq!(
+            super::opening_window_size(Some((640.0, 480.0))),
+            super::MAIN_WINDOW_SIZE
+        );
+        assert_eq!(
+            super::opening_window_size(Some((0.0, 0.0))),
+            super::MAIN_WINDOW_DEFAULT_SIZE
+        );
+    }
+
     use super::*;
 
     #[test]

@@ -492,10 +492,10 @@ const HistoryEntryComponent: React.FC<HistoryEntryProps> = ({
           </p>
           {appName && (
             <span
-              className="inline-flex min-w-0 items-center gap-1 rounded-full bg-accent/12 px-2 py-[1px] text-[11px] font-medium text-accent"
+              className="inline-flex min-w-0 items-center gap-1 text-[12px] font-medium text-accent"
               title={t("settings.history.appContext", { app: appName })}
             >
-              <AppWindow width={11} height={11} className="shrink-0" />
+              <AppWindow width={12} height={12} className="shrink-0" />
               <span className="truncate">{appName}</span>
             </span>
           )}

@@ -10,11 +10,37 @@ import type { DictationWords } from "@/bindings";
  */
 export const TYPING_WPM = 40;
 export const SPEAKING_WPM = 150;
+/** Typing speeds the user can pick (words per minute). */
+export const TYPING_WPM_OPTIONS = [30, 40, 50, 60, 70, 80, 100];
+const TYPING_WPM_KEY = "handy.typingWpm";
+
+/** The user's typing speed (a per-device preference), or the default. */
+export const getTypingWpm = (): number => {
+  try {
+    const v = Number(localStorage.getItem(TYPING_WPM_KEY));
+    return TYPING_WPM_OPTIONS.includes(v) ? v : TYPING_WPM;
+  } catch {
+    return TYPING_WPM;
+  }
+};
+
+export const setTypingWpm = (wpm: number): void => {
+  try {
+    localStorage.setItem(TYPING_WPM_KEY, String(wpm));
+  } catch {
+    // Not persisted; the choice still applies until the page reloads.
+  }
+};
+
+export const typingMinutes = (words: number, typingWpm = TYPING_WPM) =>
+  words / typingWpm;
+export const speakingMinutes = (words: number) => words / SPEAKING_WPM;
 /** Weekly goal the gauge fills towards, in minutes saved. */
 export const WEEKLY_GOAL_MINUTES = 60;
 
-export const minutesSaved = (words: number): number =>
-  Math.max(0, words / TYPING_WPM - words / SPEAKING_WPM);
+/** Typing time minus speaking time; never negative (a fast typist may win). */
+export const minutesSaved = (words: number, typingWpm = TYPING_WPM): number =>
+  Math.max(0, typingMinutes(words, typingWpm) - speakingMinutes(words));
 
 export interface DayBucket {
   /** Local midnight of the day, in ms. */
@@ -46,6 +72,7 @@ const startOfLocalDay = (ms: number): number => {
 export const computeInsights = (
   entries: DictationWords[],
   now: number = Date.now(),
+  typingWpm: number = TYPING_WPM,
 ): Insights => {
   const today = startOfLocalDay(now);
   const days: DayBucket[] = [];
@@ -72,11 +99,11 @@ export const computeInsights = (
   }
 
   const weekWords = days.reduce((a, b) => a + b.words, 0);
-  const weekMinutesSaved = minutesSaved(weekWords);
+  const weekMinutesSaved = minutesSaved(weekWords, typingWpm);
   return {
     totalWords,
     dictations,
-    totalMinutesSaved: minutesSaved(totalWords),
+    totalMinutesSaved: minutesSaved(totalWords, typingWpm),
     wordsToday: days[days.length - 1].words,
     weekWords,
     weekMinutesSaved,

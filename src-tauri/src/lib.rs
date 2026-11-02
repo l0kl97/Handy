@@ -1038,13 +1038,17 @@ pub fn run(cli_args: CliArgs) {
             #[cfg(target_os = "macos")]
             {
                 let bar = utils::measure_title_bar(&main_window);
-                if bar > 0.0 {
-                    let (width, height) = utils::MAIN_WINDOW_SIZE;
-                    let size = tauri::LogicalSize::new(width, height + bar);
-                    let _ = main_window.set_min_size(Some(size));
-                    let _ = main_window.set_size(size);
-                    let _ = main_window.center();
-                }
+                let (min_w, min_h) = utils::MAIN_WINDOW_SIZE;
+                let _ = main_window
+                    .set_min_size(Some(tauri::LogicalSize::new(min_w, min_h + bar)));
+                // Fork: open roomier than the minimum, clamped to the screen.
+                let available = main_window.current_monitor().ok().flatten().map(|m| {
+                    let size = m.size().to_logical::<f64>(m.scale_factor());
+                    (size.width, size.height)
+                });
+                let (width, height) = utils::opening_window_size(available);
+                let _ = main_window.set_size(tauri::LogicalSize::new(width, height + bar));
+                let _ = main_window.center();
 
                 if settings::get_settings(app.handle()).glass_effect {
                     glass::apply(&main_window, true);

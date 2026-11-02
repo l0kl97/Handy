@@ -915,7 +915,10 @@
     "portableUpdateMessage": "Portable Installationen können nicht automatisch aktualisiert werden. Lade unten den Installer für dein System herunter, führe ihn aus und installiere in denselben Ordner — dein Data/-Ordner (Einstellungen, Modelle, Aufnahmen) bleibt erhalten.",
     "portableUpdateButton": "Installer herunterladen",
     "portableUpdateBrowseMessage": "Portable Installationen können nicht automatisch aktualisiert werden. Lade die neueste Version für dein System von GitHub Releases herunter und installiere sie in denselben Ordner — dein Data/-Ordner (Einstellungen, Modelle, Aufnahmen) bleibt erhalten.",
-    "portableUpdateBrowseButton": "GitHub Releases öffnen"
+    "portableUpdateBrowseButton": "GitHub Releases öffnen",
+    "upstreamAvailable": "Handy {{version}} verfügbar",
+    "upstreamNotes": "Release-Notes öffnen. Das Update wird in deinen Fork übernommen, nicht direkt installiert.",
+    "upstreamCheckFailed": "Update-Prüfung fehlgeschlagen"
   },
   "whatsNew": {
     "title": "Neu in Handy v{{version}}"
@@ -1021,8 +1024,12 @@
       "minutes": "Min.",
       "hours": "Std."
     },
-    "assumption": "Schätzung: tippen etwa {{typing}} Wörter pro Minute, sprechen etwa {{speaking}}.",
     "empty": "Diktiere etwas, dann siehst du hier, wie viel Zeit du sparst.",
-    "error": "Statistik konnte nicht geladen werden."
+    "error": "Statistik konnte nicht geladen werden.",
+    "math": "{{words}} Wörter: tippen ≈ {{typing}} Min., sprechen ≈ {{speaking}} Min.",
+    "typingSpeed": "Dein Tipp-Tempo",
+    "wpm_one": "{{count}} Wort/Min.",
+    "wpm_other": "{{count}} Wörter/Min.",
+    "speakingNote": "Sprechen ≈ {{speaking}} Wörter/Min. (Schätzung)"
   }
 }
