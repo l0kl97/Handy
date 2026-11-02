@@ -504,3 +504,45 @@ for (const glass of [false, true]) {
     expect(bg).not.toMatch(/rgba\(.*, 0\.\d+\)|\/ 0\.\d+\)/);
   });
 }
+
+for (const glass of [false, true]) {
+  test(`the window never scrolls sideways (glass ${glass ? "on" : "off"})`, async ({
+    page,
+  }) => {
+    await mockTauri(page, { theme: "dark", glass });
+    await page.setViewportSize({ width: 720, height: 600 });
+    await page.goto("/");
+    for (const name of ["Insights", "History", "Advanced", "About"]) {
+      await page.locator("nav").getByRole("button", { name }).click();
+      const result = await page.evaluate(() => {
+        const roots = [document.documentElement, document.body];
+        // Try to push every scroll container sideways, like a trackpad swipe.
+        const all = [
+          ...roots,
+          ...Array.from(document.querySelectorAll<HTMLElement>("*")),
+        ];
+        const moved: string[] = [];
+        for (const el of all) {
+          // Only what a trackpad can scroll: overflow-x auto/scroll (or the page).
+          const ox = getComputedStyle(el).overflowX;
+          const userScrollable =
+            ox === "auto" || ox === "scroll" || roots.includes(el);
+          if (!userScrollable) continue;
+          const before = el.scrollLeft;
+          el.scrollLeft = 200;
+          if (el.scrollLeft !== before) {
+            moved.push(`${el.tagName}.${String(el.className).slice(0, 40)}`);
+            el.scrollLeft = before;
+          }
+        }
+        window.scrollTo(200, 0);
+        // Also: no trackpad rubber-band on the page or the content scroller.
+        const bounce = [document.documentElement, document.body]
+          .map((el) => getComputedStyle(el).overscrollBehaviorX)
+          .filter((v) => v !== "none");
+        return { moved, pageX: window.scrollX, bounce };
+      });
+      expect(result, name).toEqual({ moved: [], pageX: 0, bounce: [] });
+    }
+  });
+}

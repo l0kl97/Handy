@@ -354,7 +354,10 @@ function App() {
               )}
             >
               {/* Scrollable content area */}
-              <div ref={settingsScrollRef} className="flex-1 overflow-y-auto">
+              <div
+                ref={settingsScrollRef}
+                className="flex-1 overflow-y-auto overflow-x-hidden overscroll-x-none"
+              >
                 {/* Models fills the panel: its table scrolls, not the page. */}
                 <div
                   className={`flex flex-col items-center px-8 pt-2 pb-8 gap-4 ${currentSection === "models" ? "h-full" : ""}`}
