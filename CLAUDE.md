@@ -1,6 +1,7 @@
 Read @AGENTS.md
 
 <!-- slickrails:start — this block is inserted into the project's CLAUDE.md / AGENTS.md by install.sh -->
+
 ## Guardrails (binding)
 
 This repo follows the slickrails standard (see `.slickrails/SLICKRAILS.md`). For every AI coding session:
