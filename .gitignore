@@ -45,3 +45,8 @@ result
 
 # Python bytecode (scripts/)
 __pycache__/
+
+# slickrails
+.env
+.env.*
+!.env.example
