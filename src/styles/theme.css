@@ -27,7 +27,8 @@
   --dark-color-surface: #1a1a1c;
   --light-color-surface-2: #f2f2f4;
   --dark-color-surface-2: #232325;
-  --light-color-accent: #d9661a;
+  /* Light: a burnt amber, so amber works as small text too (5.9:1 on white). */
+  --light-color-accent: #a34a0b;
   --dark-color-accent: #ff8a3d;
   --light-color-ink-2: #5f5f64;
   --dark-color-ink-2: #a8a8ad;
@@ -174,7 +175,9 @@
   /* Legacy names → accent. */
   --color-logo-primary: var(--color-accent);
   --color-background-ui: var(--color-accent);
-  --color-on-accent: #160c04;
+  /* Text on amber fills: white on the light burnt amber, near-black on the
+     bright dark-theme amber (both ≥5.9:1). */
+  --color-on-accent: #ffffff;
 
   /* Menus and popovers: always opaque, even in glass mode. */
   --color-popover: var(--light-color-surface);
@@ -215,6 +218,7 @@
     --color-warning: var(--dark-color-warning);
     --color-error: var(--dark-color-error);
     --color-on-error: var(--dark-color-on-error);
+    --color-on-accent: #160c04;
     --color-on-error: var(--dark-color-on-error);
     --color-moss: var(--dark-color-moss);
     --color-plum: var(--dark-color-plum);
@@ -271,6 +275,7 @@
   --color-warning: var(--light-color-warning);
   --color-error: var(--light-color-error);
   --color-on-error: var(--light-color-on-error);
+  --color-on-accent: #ffffff;
   --color-moss: var(--light-color-moss);
   --color-plum: var(--light-color-plum);
   --color-mascot-line: var(--light-color-mascot-line);
@@ -320,6 +325,7 @@
   --color-warning: var(--dark-color-warning);
   --color-error: var(--dark-color-error);
   --color-on-error: var(--dark-color-on-error);
+  --color-on-accent: #160c04;
   --color-moss: var(--dark-color-moss);
   --color-plum: var(--dark-color-plum);
   --color-mascot-line: var(--dark-color-mascot-line);

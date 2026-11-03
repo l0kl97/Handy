@@ -97,7 +97,7 @@ export const InsightsPage: React.FC = () => {
           </h2>
           <span
             className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium ${
-              reached ? "bg-accent/15 text-accent" : "bg-surface-2 text-ink-2"
+              reached ? "bg-accent/15 text-text" : "bg-surface-2 text-ink-2"
             }`}
           >
             <span

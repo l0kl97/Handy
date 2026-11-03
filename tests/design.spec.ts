@@ -136,6 +136,7 @@ async function mockTauri(page: Page, mode: Mode, upstream = "v0.10.0") {
           }
           if (cmd === "get_dictation_stats") {
             if (w.__HANDY_FAIL_STATS__) throw new Error("db locked");
+            if (w.__HANDY_STATS__) return w.__HANDY_STATS__;
             // A believable week: ~1,900 words, most of them today.
             const day = 86400;
             const t = Math.floor(Date.now() / 1000) - 60;
@@ -603,5 +604,135 @@ for (const theme of ["dark", "light"] as const) {
       return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
     });
     expect(ratio).toBeGreaterThanOrEqual(4.5);
+  });
+}
+
+for (const theme of ["dark", "light"] as const) {
+  test(`the 'goal reached' pill is legible (${theme})`, async ({ page }) => {
+    // 5,000 words today → far past the 60-minute goal.
+    await page.addInitScript(() => {
+      (window as unknown as Record<string, unknown>).__HANDY_STATS__ = [
+        { timestamp: Math.floor(Date.now() / 1000) - 60, words: 5000 },
+      ];
+    });
+    await mockTauri(page, { theme, glass: false });
+    await page.goto("/");
+    const pill = page.getByText("Goal reached", { exact: true });
+    await expect(pill).toBeVisible();
+    const ratio = await pill.evaluate((el) => {
+      // Handles rgb()/rgba() (0–255) and color(srgb r g b / a) (0–1), which
+      // Chromium returns for color-mix() and Tailwind's /15 opacity.
+      const parse = (c: string) => {
+        const n = (c.match(/[\d.]+/g) ?? []).map(Number);
+        const scale = c.startsWith("color(") ? 255 : 1;
+        return {
+          r: n[0] * scale,
+          g: n[1] * scale,
+          b: n[2] * scale,
+          a: n.length > 3 ? n[3] : 1,
+        };
+      };
+      // Effective background: composite translucent layers up the tree.
+      const layers: ReturnType<typeof parse>[] = [];
+      for (let n: Element | null = el; n; n = n.parentElement) {
+        const bg = parse(getComputedStyle(n).backgroundColor);
+        if (bg.a > 0) layers.push(bg);
+        if (bg.a >= 1) break;
+      }
+      let base = { r: 255, g: 255, b: 255 };
+      for (const l of layers.reverse())
+        base = {
+          r: l.r * l.a + base.r * (1 - l.a),
+          g: l.g * l.a + base.g * (1 - l.a),
+          b: l.b * l.a + base.b * (1 - l.a),
+        };
+      const fg = parse(getComputedStyle(el).color);
+      const lum = (c: { r: number; g: number; b: number }) => {
+        const f = (v: number) => {
+          v /= 255;
+          return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+        };
+        return 0.2126 * f(c.r) + 0.7152 * f(c.g) + 0.0722 * f(c.b);
+      };
+      const a = lum(fg);
+      const b = lum(base);
+      return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+    });
+    expect(ratio).toBeGreaterThanOrEqual(4.5);
+  });
+}
+
+/** Rendered contrast of an element's text against its composited background. */
+const contrastOf = (el: Element) => {
+  const parse = (c: string) => {
+    const n = (c.match(/[\d.]+/g) ?? []).map(Number);
+    const scale = c.startsWith("color(") ? 255 : 1;
+    return {
+      r: n[0] * scale,
+      g: n[1] * scale,
+      b: n[2] * scale,
+      a: n.length > 3 ? n[3] : 1,
+    };
+  };
+  const layers: ReturnType<typeof parse>[] = [];
+  for (let n: Element | null = el; n; n = n.parentElement) {
+    const bg = parse(getComputedStyle(n).backgroundColor);
+    if (bg.a > 0) layers.push(bg);
+    if (bg.a >= 1) break;
+  }
+  let base = { r: 255, g: 255, b: 255 };
+  for (const l of layers.reverse())
+    base = {
+      r: l.r * l.a + base.r * (1 - l.a),
+      g: l.g * l.a + base.g * (1 - l.a),
+      b: l.b * l.a + base.b * (1 - l.a),
+    };
+  const lum = (c: { r: number; g: number; b: number }) => {
+    const f = (v: number) => {
+      v /= 255;
+      return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+    };
+    return 0.2126 * f(c.r) + 0.7152 * f(c.g) + 0.0722 * f(c.b);
+  };
+  const a = lum(parse(getComputedStyle(el).color));
+  const b = lum(base);
+  return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+};
+
+for (const theme of ["dark", "light"] as const) {
+  test(`amber text is legible as small text (${theme})`, async ({ page }) => {
+    await mockTauri(page, { theme, glass: false });
+    await page.goto("/");
+    await page.locator("nav").getByRole("button", { name: "History" }).click();
+    // The app label ("Slack") is 12px amber text on the page background.
+    const label = page.getByTitle("Dictated into Slack");
+    await expect(label).toBeVisible();
+    expect(await label.evaluate(contrastOf)).toBeGreaterThanOrEqual(4.5);
+
+    // Amber as text on the grey control surface, and text on an amber fill.
+    const pair = await page.evaluate(() => {
+      const mk = (cls: string, parentCls?: string) => {
+        const host = document.createElement("div");
+        host.className = parentCls ?? "";
+        const el = document.createElement("span");
+        el.className = cls;
+        el.textContent = "x";
+        host.appendChild(el);
+        document.body.appendChild(host);
+        return el;
+      };
+      return {
+        onGrey: mk("text-accent", "bg-surface-2").outerHTML,
+        onAmber: mk("bg-accent text-on-accent").outerHTML,
+      };
+    });
+    expect(pair.onGrey).toContain("text-accent");
+    for (const sel of [
+      ".bg-surface-2 > .text-accent",
+      ".bg-accent.text-on-accent",
+    ]) {
+      const ratio = await page.locator(sel).last().evaluate(contrastOf);
+      expect(ratio, sel).toBeGreaterThanOrEqual(4.5);
+    }
   });
 }

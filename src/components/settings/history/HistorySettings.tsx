@@ -225,9 +225,12 @@ export const HistorySettings: React.FC = () => {
   useEffect(() => {
     const unlisten = events.historyUpdatePayload.listen((event) => {
       const payload: HistoryUpdatePayload = event.payload;
+      // An entry's app is stored right after it is added; Rust then sends
+      // "updated" for it, which is when the app name can be read.
+      if (payload.action === "added" || payload.action === "updated") {
+        loadApps();
+      }
       if (payload.action === "added") {
-        // The app is stored right after the entry; fetch it a beat later.
-        setTimeout(loadApps, 400);
         setEntries((prev) => [
           payload.entry,
           ...prev.filter((entry) => entry.id !== payload.entry.id),

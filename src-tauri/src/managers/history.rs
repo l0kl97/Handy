@@ -300,15 +300,20 @@ impl HistoryManager {
         }
     }
 
-    /// Fork: store the frontmost app for a new dictation; warn-only.
-    fn record_dictation_app(&self, history_id: i64) {
+    /// Fork: store the frontmost app for a new dictation; warn-only. Returns
+    /// whether an app was recorded, so the caller can tell the UI to refresh.
+    fn record_dictation_app(&self, history_id: i64) -> bool {
         let Some((name, bundle)) = super::dictation_apps::frontmost_app() else {
-            return;
+            return false;
         };
-        if let Err(e) = self.get_connection().and_then(|conn| {
+        match self.get_connection().and_then(|conn| {
             super::dictation_apps::record_with_conn(&conn, history_id, &name, bundle.as_deref())
         }) {
-            warn!("Failed to record dictation app: {e}");
+            Ok(()) => true,
+            Err(e) => {
+                warn!("Failed to record dictation app: {e}");
+                false
+            }
         }
     }
 
@@ -358,7 +363,17 @@ impl HistoryManager {
         // Fork: count the words for the stats before pruning can drop the entry,
         // and remember which app the text went to.
         self.record_dictation_stats(&entry);
-        self.record_dictation_app(entry.id);
+        // The entry was announced as "added" before its app existed; announce
+        // it again as "updated" so the history shows the app without guessing.
+        if self.record_dictation_app(entry.id) {
+            if let Err(e) = (HistoryUpdatePayload::Updated {
+                entry: entry.clone(),
+            })
+            .emit(&self.app_handle)
+            {
+                error!("Failed to emit history-updated event: {}", e);
+            }
+        }
 
         self.cleanup_old_entries()?;
 

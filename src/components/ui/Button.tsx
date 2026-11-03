@@ -28,7 +28,7 @@ export const Button: React.FC<ButtonProps> = ({
   const variantClasses = {
     primary: "text-background bg-text border-text hover:opacity-90",
     "primary-soft":
-      "text-accent bg-accent/12 border-transparent hover:bg-accent/18",
+      "text-text bg-accent/12 border-transparent hover:bg-accent/18",
     secondary:
       "text-text bg-surface-2 border-line hover:bg-wash hover:border-line-strong",
     // For screens where secondary's grey fill reads as disabled (onboarding)
