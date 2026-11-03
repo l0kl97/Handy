@@ -30,6 +30,7 @@
   --color-surface-2: var(--color-surface-2);
   --color-accent: var(--color-accent);
   --color-on-accent: var(--color-on-accent);
+  --color-on-error: var(--color-on-error);
   --color-popover: var(--color-popover);
   --shadow-card: var(--shadow-card);
 }

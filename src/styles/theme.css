@@ -37,6 +37,9 @@
   --dark-color-warning: #ffd60a;
   --light-color-error: #d52b1e;
   --dark-color-error: #ff5f57;
+  /* Text on error fills (destructive button): white fails on the dark red. */
+  --light-color-on-error: #ffffff;
+  --dark-color-on-error: #1a0605;
   --light-color-moss: #1f8f4e;
   --dark-color-moss: #30d158;
   --light-color-plum: #1d1d1f;
@@ -148,6 +151,7 @@
   --color-ink-3: var(--light-color-ink-3);
   --color-warning: var(--light-color-warning);
   --color-error: var(--light-color-error);
+  --color-on-error: var(--light-color-on-error);
   --color-moss: var(--light-color-moss);
   --color-plum: var(--light-color-plum);
   --color-mascot-line: var(--light-color-mascot-line);
@@ -210,6 +214,8 @@
     --color-ink-3: var(--dark-color-ink-3);
     --color-warning: var(--dark-color-warning);
     --color-error: var(--dark-color-error);
+    --color-on-error: var(--dark-color-on-error);
+    --color-on-error: var(--dark-color-on-error);
     --color-moss: var(--dark-color-moss);
     --color-plum: var(--dark-color-plum);
     --color-mascot-line: var(--dark-color-mascot-line);
@@ -264,6 +270,7 @@
   --color-ink-3: var(--light-color-ink-3);
   --color-warning: var(--light-color-warning);
   --color-error: var(--light-color-error);
+  --color-on-error: var(--light-color-on-error);
   --color-moss: var(--light-color-moss);
   --color-plum: var(--light-color-plum);
   --color-mascot-line: var(--light-color-mascot-line);
@@ -312,6 +319,7 @@
   --color-ink-3: var(--dark-color-ink-3);
   --color-warning: var(--dark-color-warning);
   --color-error: var(--dark-color-error);
+  --color-on-error: var(--dark-color-on-error);
   --color-moss: var(--dark-color-moss);
   --color-plum: var(--dark-color-plum);
   --color-mascot-line: var(--dark-color-mascot-line);

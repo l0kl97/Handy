@@ -576,3 +576,32 @@ for (const glass of [false, true]) {
     });
   });
 }
+
+for (const theme of ["dark", "light"] as const) {
+  test(`destructive button text is legible on error (${theme})`, async ({
+    page,
+  }) => {
+    await mockTauri(page, { theme, glass: false });
+    await page.goto("/");
+    const ratio = await page.evaluate(() => {
+      const probe = document.createElement("button");
+      probe.className = "bg-error text-on-error";
+      document.body.appendChild(probe);
+      const cs = getComputedStyle(probe);
+      const rgb = (c: string) =>
+        (c.match(/[\d.]+/g) ?? []).slice(0, 3).map(Number);
+      const lum = ([r, g, b]: number[]) => {
+        const f = (v: number) => {
+          v /= 255;
+          return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+        };
+        return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+      };
+      const a = lum(rgb(cs.color));
+      const b = lum(rgb(cs.backgroundColor));
+      probe.remove();
+      return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+    });
+    expect(ratio).toBeGreaterThanOrEqual(4.5);
+  });
+}

@@ -39,7 +39,7 @@ export const Button: React.FC<ButtonProps> = ({
     // SecureInputWarning
     warning:
       "text-text bg-surface-2 border-line hover:bg-warning-wash hover:border-warning",
-    danger: "text-white bg-error border-error hover:opacity-90",
+    danger: "text-on-error bg-error border-error hover:opacity-90",
     "danger-ghost":
       "text-error border-transparent hover:bg-error-wash focus:bg-error-wash",
     ghost: "text-current border-transparent hover:bg-wash focus:bg-wash",
