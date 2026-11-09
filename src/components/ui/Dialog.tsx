@@ -164,6 +164,7 @@ export const Dialog: React.FC<DialogProps> = ({
       <div
         ref={contentRef}
         role="dialog"
+        data-solid
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={description ? descriptionId : undefined}

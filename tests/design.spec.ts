@@ -798,7 +798,7 @@ for (const theme of ["dark", "light"] as const) {
       ).map(Number);
       return n.length > 3 ? n[3] : 1;
     });
-    expect(fillAlpha, "pane fill alpha").toBeLessThanOrEqual(0.7);
+    expect(fillAlpha, "pane fill alpha").toBeLessThanOrEqual(0.8);
     const inactive = nav.locator("button:not([aria-current])").first();
     const label = inactive.locator("span");
     const icon = inactive.locator("svg");
@@ -837,7 +837,27 @@ for (const theme of ["dark", "light"] as const) {
       ).map(Number);
       return n.length > 3 ? n[3] : 1;
     });
-    expect(panelAlpha, "content panel fill alpha").toBeLessThanOrEqual(0.7);
+    expect(panelAlpha, "content panel fill alpha").toBeLessThanOrEqual(0.8);
+    // Same glass as the sidebar (Jonah: "den hellen Hintergrund von der
+    // linken Sidebar auch bei der rechten").
+    const paneBg = await page
+      .locator("nav.glass-pane")
+      .evaluate((el) => getComputedStyle(el).backgroundColor);
+    const panelBg = await page
+      .locator("main.glass-panel")
+      .evaluate((el) => getComputedStyle(el).backgroundColor);
+    expect(panelBg, "panel matches the sidebar glass").toBe(paneBg);
+    // Tiles are a light tint like the selected sidebar row, not opaque cards.
+    const tileAlpha = await page
+      .locator("main .glass-card")
+      .first()
+      .evaluate((el) => {
+        const n = (
+          getComputedStyle(el).backgroundColor.match(/[\d.]+/g) ?? []
+        ).map(Number);
+        return n.length > 3 ? n[3] : 1;
+      });
+    expect(tileAlpha, "tile tint alpha").toBeLessThanOrEqual(0.2);
 
     const backdrop =
       theme === "dark" ? { r: 255, g: 255, b: 255 } : { r: 0, g: 0, b: 0 };

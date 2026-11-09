@@ -143,6 +143,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
               left: place?.left ?? -9999,
               visibility: place ? "visible" : "hidden",
             }}
+            data-solid
             className="pointer-events-none fixed z-[9999] w-max max-w-[248px] rounded-[8px] border border-line-strong bg-surface-2 px-[10px] py-[6px] text-start font-ui text-label leading-[17px] text-text shadow-[0_8px_24px_-10px_rgba(0,0,0,0.5)]"
           >
             {title && <b className="block font-semibold">{title}</b>}

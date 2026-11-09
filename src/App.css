@@ -359,20 +359,20 @@ body {
 /* sidebar pane with a specular rim, borderless panel, rim-lit cards.  */
 /* ------------------------------------------------------------------ */
 
-:root[data-glass="on"] .glass-pane {
-  margin: 8px;
-  height: calc(100% - 16px);
+/* Both sides are the same glass pane: the sidebar and the content panel
+   float 8px from the window edge with the same fill, rim and shadow.
+
+   77% of the opaque page tone, so the desktop still shows through. The
+   desktop behind the window is unknown (a white document, a black
+   wallpaper), so legibility comes from the text tone, not from more fill:
+   on glass every text is near-primary (see the ink tokens below). The solid
+   token matters: --color-background is already translucent in glass mode. */
+:root[data-glass="on"] .glass-pane,
+:root[data-glass="on"] .glass-panel {
   border-radius: 18px;
-  /* 64% of the opaque page tone, so the desktop still shows through. The
-     desktop behind the window is unknown (a white document, a black
-     wallpaper), so legibility comes from the text tone: on the pane, labels
-     and icons use the primary text colour (see .glass-pane button below),
-     which reaches 4.5:1 over both extremes from ~62% fill. Grey ink-2 labels
-     would need ~86% and the glass would vanish. The solid token matters:
-     --color-background is already translucent in glass mode. */
   background: color-mix(
     in srgb,
-    var(--color-background-solid) 64%,
+    var(--color-background-solid) 77%,
     transparent
   );
   border: 1px solid rgba(255, 255, 255, 0.14);
@@ -380,16 +380,21 @@ body {
     inset 0 1px 0 rgba(255, 255, 255, 0.16),
     inset 0 -1px 0 rgba(255, 255, 255, 0.04),
     0 10px 30px -12px rgba(0, 0, 0, 0.35);
+}
+
+:root[data-glass="on"] .glass-pane {
+  margin: 8px;
+  height: calc(100% - 16px);
   backdrop-filter: blur(24px) saturate(170%);
   -webkit-backdrop-filter: blur(24px) saturate(170%);
 }
 
-/* Text on glass is primary-tone, never grey (as in macOS sidebars): the
-   backdrop is unknown, so a mid-grey label can land on a mid-grey desktop.
-   The active row still stands out by its pill. */
-:root[data-glass="on"] .glass-pane button,
-:root[data-glass="on"] .glass-pane button svg {
-  color: var(--color-text);
+/* No backdrop-filter on the content panel: it would make the panel a
+   stacking context for every dropdown inside it. The native material
+   behind the window already blurs. */
+:root[data-glass="on"] .glass-panel {
+  margin: 8px 8px 8px 0;
+  background-image: none;
 }
 
 /* The traffic lights now sit inside the pane, so pull its top in a touch. */
@@ -397,54 +402,65 @@ body {
   height: 44px;
 }
 
-:root[data-glass="on"] .glass-panel {
-  border-inline-start-color: transparent;
+/* Text on the sidebar is primary-tone; the active row stands out by its pill. */
+:root[data-glass="on"] .glass-pane button,
+:root[data-glass="on"] .glass-pane button svg {
+  color: var(--color-text);
 }
 
-/* Text straight on the glass panel (titles, labels between cards, the
-   footer, history headers) uses the primary tone, as in the sidebar: the
-   panel is translucent and the desktop behind it unknown, so grey or amber
-   text could land on grey. Inside cards and bubbles, which are nearly opaque
-   on top of the panel, the usual grey hierarchy comes back. */
+/* Tiles on glass are tinted like the sidebar's selected row, not dark
+   opaque cards: surfaces become a light wash of the text tone. Menus,
+   tooltips and dialogs ([data-solid], .bg-popover) stay opaque and keep the
+   usual greys, because they float over unrelated content. */
 :root[data-glass="on"] {
-  --ink-2-base: var(--color-ink-2);
-  /* A touch toward the text tone: cards let ~3% of the desktop through. */
-  --ink-3-base: color-mix(in srgb, var(--color-ink-3), var(--color-text) 12%);
+  --ink-2-orig: var(--color-ink-2);
+  --ink-3-orig: var(--color-ink-3);
+  --surface-orig: var(--color-surface);
+  --surface-2-orig: var(--color-surface-2);
 }
-:root[data-glass="on"] main.glass-panel {
-  --color-ink-2: var(--color-text);
-  --color-ink-3: var(--color-text);
+:root[data-glass="on"] body {
+  --color-surface: color-mix(
+    in srgb,
+    var(--color-line-strong) 70%,
+    transparent
+  );
+  /* Controls and bubbles often sit on a tile, so a lighter wash: two full
+     washes stacked would brighten the base too far for primary text. */
+  --color-surface-2: color-mix(
+    in srgb,
+    var(--color-line-strong) 40%,
+    transparent
+  );
+  /* Text on glass is near-primary, never mid-grey (as in macOS sidebars):
+     a grey label could land on a grey desktop. The hierarchy stays as a
+     small step in tone plus size and weight. */
+  --color-ink-2: color-mix(in srgb, var(--ink-2-orig), var(--color-text) 92%);
+  --color-ink-3: color-mix(in srgb, var(--ink-3-orig), var(--color-text) 88%);
 }
-:root[data-glass="on"]
-  main.glass-panel
-  :is(.bg-surface, .bg-surface-2, .bg-popover, .glass-card, [role="dialog"]) {
-  --color-ink-2: var(--ink-2-base);
-  --color-ink-3: var(--ink-3-base);
+:root[data-glass="on"] :is([data-solid], .bg-popover) {
+  --color-surface: var(--surface-orig);
+  --color-surface-2: var(--surface-2-orig);
+  --color-ink-2: var(--ink-2-orig);
+  --color-ink-3: var(--ink-3-orig);
 }
-/* Amber as text on the panel turns primary; its icon keeps the amber. */
-:root[data-glass="on"]
-  main.glass-panel
-  .text-accent:not(
-    :where(.bg-surface, .bg-surface-2, .bg-popover, .glass-card) *
-  ) {
+:root[data-glass="on"] [data-solid] {
+  background-color: var(--color-popover);
+}
+
+/* Amber as text on glass turns primary; its icon keeps the amber. */
+:root[data-glass="on"] .text-accent:not(:where([data-solid], .bg-popover) *) {
   color: var(--color-text);
 }
 :root[data-glass="on"]
-  main.glass-panel
-  .text-accent:not(
-    :where(.bg-surface, .bg-surface-2, .bg-popover, .glass-card) *
-  )
+  .text-accent:not(:where([data-solid], .bg-popover) *)
   > svg {
   color: var(--color-accent);
 }
 
 /* No backdrop-filter on cards: it would make every card its own stacking
-   context, and an open dropdown could never rise above the next card. The
-   cards are nearly opaque anyway; the glass lives in the sidebar. */
+   context, and an open dropdown could never rise above the next card. */
 :root[data-glass="on"] .glass-card {
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.07),
-    0 1px 2px rgba(0, 0, 0, 0.12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
 }
 
 /* Reduce transparency (macOS accessibility): keep the glass layout but make
@@ -455,9 +471,16 @@ body {
     --bg-alpha: 100%;
     --surface-alpha: 100%;
   }
-  :root[data-glass="on"] .glass-pane {
-    background: var(--color-surface);
+  :root[data-glass="on"] .glass-pane,
+  :root[data-glass="on"] .glass-panel {
+    background: var(--color-background-solid);
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
+  }
+  :root[data-glass="on"] body {
+    --color-surface: var(--surface-orig);
+    --color-surface-2: var(--surface-2-orig);
+    --color-ink-2: var(--ink-2-orig);
+    --color-ink-3: var(--ink-3-orig);
   }
 }
