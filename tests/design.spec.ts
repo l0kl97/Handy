@@ -790,6 +790,15 @@ for (const theme of ["dark", "light"] as const) {
     await page.goto("/");
     const nav = page.locator("nav.glass-pane");
     await expect(nav).toBeVisible();
+    // The pane must still be glass: legibility comes from the text tone,
+    // not from filling the pane until the desktop no longer shows.
+    const fillAlpha = await nav.evaluate((el) => {
+      const n = (
+        getComputedStyle(el).backgroundColor.match(/[\d.]+/g) ?? []
+      ).map(Number);
+      return n.length > 3 ? n[3] : 1;
+    });
+    expect(fillAlpha, "pane fill alpha").toBeLessThanOrEqual(0.7);
     const inactive = nav.locator("button:not([aria-current])").first();
     const label = inactive.locator("span");
     const icon = inactive.locator("svg");

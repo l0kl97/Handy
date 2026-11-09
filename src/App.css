@@ -363,14 +363,16 @@ body {
   margin: 8px;
   height: calc(100% - 16px);
   border-radius: 18px;
-  /* 88% of the opaque page tone: the desktop behind the window is unknown
-     (a white document, a black wallpaper), and labels must reach 4.5:1 over
-     both. Below ~86% dark-theme labels wash out over a white window. The
-     solid token matters: --color-background is already translucent in glass
-     mode. More fill, not more blur. */
+  /* 64% of the opaque page tone, so the desktop still shows through. The
+     desktop behind the window is unknown (a white document, a black
+     wallpaper), so legibility comes from the text tone: on the pane, labels
+     and icons use the primary text colour (see .glass-pane button below),
+     which reaches 4.5:1 over both extremes from ~62% fill. Grey ink-2 labels
+     would need ~86% and the glass would vanish. The solid token matters:
+     --color-background is already translucent in glass mode. */
   background: color-mix(
     in srgb,
-    var(--color-background-solid) 88%,
+    var(--color-background-solid) 64%,
     transparent
   );
   border: 1px solid rgba(255, 255, 255, 0.14);
@@ -380,6 +382,14 @@ body {
     0 10px 30px -12px rgba(0, 0, 0, 0.35);
   backdrop-filter: blur(24px) saturate(170%);
   -webkit-backdrop-filter: blur(24px) saturate(170%);
+}
+
+/* Text on glass is primary-tone, never grey (as in macOS sidebars): the
+   backdrop is unknown, so a mid-grey label can land on a mid-grey desktop.
+   The active row still stands out by its pill. */
+:root[data-glass="on"] .glass-pane button,
+:root[data-glass="on"] .glass-pane button svg {
+  color: var(--color-text);
 }
 
 /* The traffic lights now sit inside the pane, so pull its top in a touch. */
