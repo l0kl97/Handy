@@ -820,44 +820,42 @@ for (const theme of ["dark", "light"] as const) {
 }
 
 /*
- * The content side is glass too: the panel lets the desktop through, and
- * every text on every page stays legible over the worst desktop for its
- * theme (a white window behind dark Handy, a black wallpaper behind light).
+ * The content side: the panel is clear (only the window material behind
+ * it), and the tiles carry the sidebar's glass (Jonah: "den dunklen
+ * Glas-Hintergrund weg bzw. als Kachel-Hintergrund"). Text inside tiles
+ * stays legible over the worst desktop for its theme (a white window behind
+ * dark Handy, a black wallpaper behind light); text straight on the clear
+ * panel is primary-tone with a halo, since nothing of ours sits under it.
  */
 for (const theme of ["dark", "light"] as const) {
-  test(`glass content stays translucent and every text legible (${theme})`, async ({
+  test(`glass content: clear panel, glass tiles, every text legible (${theme})`, async ({
     page,
   }) => {
     await mockTauri(page, { theme, glass: true });
     await page.setViewportSize({ width: 1040, height: 760 });
     await page.goto("/");
-    const panelAlpha = await page.locator("main.glass-panel").evaluate((el) => {
+    const alphaOf = (el: Element) => {
       const n = (
         getComputedStyle(el).backgroundColor.match(/[\d.]+/g) ?? []
       ).map(Number);
       return n.length > 3 ? n[3] : 1;
-    });
-    expect(panelAlpha, "content panel fill alpha").toBeLessThanOrEqual(0.8);
-    // Same glass as the sidebar (Jonah: "den hellen Hintergrund von der
-    // linken Sidebar auch bei der rechten").
+    };
+    expect(
+      await page.locator("main.glass-panel").evaluate(alphaOf),
+      "content panel is clear",
+    ).toBeLessThanOrEqual(0.02);
     const paneBg = await page
       .locator("nav.glass-pane")
       .evaluate((el) => getComputedStyle(el).backgroundColor);
-    const panelBg = await page
-      .locator("main.glass-panel")
-      .evaluate((el) => getComputedStyle(el).backgroundColor);
-    expect(panelBg, "panel matches the sidebar glass").toBe(paneBg);
-    // Tiles are a light tint like the selected sidebar row, not opaque cards.
-    const tileAlpha = await page
+    const tileBg = await page
       .locator("main .glass-card")
       .first()
-      .evaluate((el) => {
-        const n = (
-          getComputedStyle(el).backgroundColor.match(/[\d.]+/g) ?? []
-        ).map(Number);
-        return n.length > 3 ? n[3] : 1;
-      });
-    expect(tileAlpha, "tile tint alpha").toBeLessThanOrEqual(0.2);
+      .evaluate((el) => getComputedStyle(el).backgroundColor);
+    expect(tileBg, "tiles carry the sidebar glass").toBe(paneBg);
+    expect(
+      await page.locator("nav.glass-pane").evaluate(alphaOf),
+      "glass still lets the desktop through",
+    ).toBeLessThanOrEqual(0.8);
 
     const backdrop =
       theme === "dark" ? { r: 255, g: 255, b: 255 } : { r: 0, g: 0, b: 0 };
@@ -874,6 +872,24 @@ for (const theme of ["dark", "light"] as const) {
             b: { r: number; g: number; b: number },
           ) => number;
           const out: string[] = [];
+          const probe = document.createElement("span");
+          probe.style.color = "var(--color-text)";
+          main.appendChild(probe);
+          const primary = getComputedStyle(probe).color;
+          probe.remove();
+          const onClearGlass = (el: Element) => {
+            for (
+              let n: Element | null = el;
+              n && n !== main;
+              n = n.parentElement
+            ) {
+              const m = (
+                getComputedStyle(n).backgroundColor.match(/[\d.]+/g) ?? []
+              ).map(Number);
+              if ((m.length > 3 ? m[3] : 1) > 0) return false;
+            }
+            return true;
+          };
           for (const el of Array.from(main.querySelectorAll("*"))) {
             const own = Array.from(el.childNodes)
               .filter((n) => n.nodeType === Node.TEXT_NODE)
@@ -886,6 +902,15 @@ for (const theme of ["dark", "light"] as const) {
             const cs = getComputedStyle(el);
             if (cs.visibility === "hidden") continue;
             if (el.closest("[disabled],[aria-disabled='true']")) continue;
+            // Separators like "·" are decoration, not text to read.
+            if (!/[\p{L}\p{N}]/u.test(own)) continue;
+            if (onClearGlass(el)) {
+              if (cs.color !== primary || cs.textShadow === "none")
+                out.push(
+                  `${own.slice(0, 30)} (on clear glass: ${cs.color}, shadow ${cs.textShadow})`,
+                );
+              continue;
+            }
             const size = parseFloat(cs.fontSize);
             const large =
               size >= 24 || (size >= 18.66 && Number(cs.fontWeight) >= 700);
