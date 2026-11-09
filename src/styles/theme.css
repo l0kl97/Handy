@@ -127,6 +127,8 @@
   /* Active palette: light by default, the OS via the media query, or
      forced by `data-theme`. */
   --color-text: var(--light-color-text);
+  /* Opaque page tone, for layers that set their own alpha (glass pane). */
+  --color-background-solid: var(--light-color-background);
   --color-canvas: color-mix(
     in srgb,
     var(--light-color-canvas) var(--canvas-alpha),
@@ -192,6 +194,8 @@
   :root {
     --color-popover: #1f1f22;
     --color-text: var(--dark-color-text);
+    /* Opaque page tone, for layers that set their own alpha (glass pane). */
+    --color-background-solid: var(--dark-color-background);
     --color-canvas: color-mix(
       in srgb,
       var(--dark-color-canvas) var(--canvas-alpha),
@@ -249,6 +253,8 @@
 :root[data-theme="light"] {
   --color-popover: var(--light-color-surface);
   --color-text: var(--light-color-text);
+  /* Opaque page tone, for layers that set their own alpha (glass pane). */
+  --color-background-solid: var(--light-color-background);
   --color-canvas: color-mix(
     in srgb,
     var(--light-color-canvas) var(--canvas-alpha),
@@ -299,6 +305,8 @@
 :root[data-theme="dark"] {
   --color-popover: #1f1f22;
   --color-text: var(--dark-color-text);
+  /* Opaque page tone, for layers that set their own alpha (glass pane). */
+  --color-background-solid: var(--dark-color-background);
   --color-canvas: color-mix(
     in srgb,
     var(--dark-color-canvas) var(--canvas-alpha),

@@ -736,3 +736,76 @@ for (const theme of ["dark", "light"] as const) {
     }
   });
 }
+
+/*
+ * Glass sidebar over an unknown desktop. With glass on the window is clear,
+ * so whatever sits behind it (a white document, a black wallpaper) shows
+ * through the pane. Labels must stay legible against both extremes: text
+ * 4.5:1, icons 3:1.
+ */
+const contrastOver = (
+  el: Element,
+  backdrop: { r: number; g: number; b: number },
+) => {
+  const parse = (c: string) => {
+    const n = (c.match(/[\d.]+/g) ?? []).map(Number);
+    const scale = c.startsWith("color(") ? 255 : 1;
+    return {
+      r: n[0] * scale,
+      g: n[1] * scale,
+      b: n[2] * scale,
+      a: n.length > 3 ? n[3] : 1,
+    };
+  };
+  const layers: ReturnType<typeof parse>[] = [];
+  for (let n: Element | null = el; n; n = n.parentElement) {
+    const bg = parse(getComputedStyle(n).backgroundColor);
+    if (bg.a > 0) layers.push(bg);
+    if (bg.a >= 1) break;
+  }
+  let base = backdrop;
+  for (const l of layers.reverse())
+    base = {
+      r: l.r * l.a + base.r * (1 - l.a),
+      g: l.g * l.a + base.g * (1 - l.a),
+      b: l.b * l.a + base.b * (1 - l.a),
+    };
+  const lum = (c: { r: number; g: number; b: number }) => {
+    const f = (v: number) => {
+      v /= 255;
+      return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+    };
+    return 0.2126 * f(c.r) + 0.7152 * f(c.g) + 0.0722 * f(c.b);
+  };
+  const a = lum(parse(getComputedStyle(el).color));
+  const b = lum(base);
+  return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+};
+
+for (const theme of ["dark", "light"] as const) {
+  test(`glass sidebar stays legible over a white and a black desktop (${theme})`, async ({
+    page,
+  }) => {
+    await mockTauri(page, { theme, glass: true });
+    await page.goto("/");
+    const nav = page.locator("nav.glass-pane");
+    await expect(nav).toBeVisible();
+    const inactive = nav.locator("button:not([aria-current])").first();
+    const label = inactive.locator("span");
+    const icon = inactive.locator("svg");
+    for (const backdrop of [
+      { r: 255, g: 255, b: 255 },
+      { r: 0, g: 0, b: 0 },
+    ]) {
+      const where = `${theme} over rgb(${backdrop.r},${backdrop.g},${backdrop.b})`;
+      expect(
+        await label.evaluate(contrastOver, backdrop),
+        `label ${where}`,
+      ).toBeGreaterThanOrEqual(4.5);
+      expect(
+        await icon.evaluate(contrastOver, backdrop),
+        `icon ${where}`,
+      ).toBeGreaterThanOrEqual(3);
+    }
+  });
+}
