@@ -401,6 +401,43 @@ body {
   border-inline-start-color: transparent;
 }
 
+/* Text straight on the glass panel (titles, labels between cards, the
+   footer, history headers) uses the primary tone, as in the sidebar: the
+   panel is translucent and the desktop behind it unknown, so grey or amber
+   text could land on grey. Inside cards and bubbles, which are nearly opaque
+   on top of the panel, the usual grey hierarchy comes back. */
+:root[data-glass="on"] {
+  --ink-2-base: var(--color-ink-2);
+  /* A touch toward the text tone: cards let ~3% of the desktop through. */
+  --ink-3-base: color-mix(in srgb, var(--color-ink-3), var(--color-text) 12%);
+}
+:root[data-glass="on"] main.glass-panel {
+  --color-ink-2: var(--color-text);
+  --color-ink-3: var(--color-text);
+}
+:root[data-glass="on"]
+  main.glass-panel
+  :is(.bg-surface, .bg-surface-2, .bg-popover, .glass-card, [role="dialog"]) {
+  --color-ink-2: var(--ink-2-base);
+  --color-ink-3: var(--ink-3-base);
+}
+/* Amber as text on the panel turns primary; its icon keeps the amber. */
+:root[data-glass="on"]
+  main.glass-panel
+  .text-accent:not(
+    :where(.bg-surface, .bg-surface-2, .bg-popover, .glass-card) *
+  ) {
+  color: var(--color-text);
+}
+:root[data-glass="on"]
+  main.glass-panel
+  .text-accent:not(
+    :where(.bg-surface, .bg-surface-2, .bg-popover, .glass-card) *
+  )
+  > svg {
+  color: var(--color-accent);
+}
+
 /* No backdrop-filter on cards: it would make every card its own stacking
    context, and an open dropdown could never rise above the next card. The
    cards are nearly opaque anyway; the glass lives in the sidebar. */

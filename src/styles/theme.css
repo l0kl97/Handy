@@ -358,6 +358,6 @@
    nearly opaque so text is crisp and the glass does not turn the page grey. */
 :root[data-glass="on"] {
   --canvas-alpha: 0%;
-  --bg-alpha: 86%;
+  --bg-alpha: 64%;
   --surface-alpha: 92%;
 }

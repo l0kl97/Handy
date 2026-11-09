@@ -818,3 +818,69 @@ for (const theme of ["dark", "light"] as const) {
     }
   });
 }
+
+/*
+ * The content side is glass too: the panel lets the desktop through, and
+ * every text on every page stays legible over the worst desktop for its
+ * theme (a white window behind dark Handy, a black wallpaper behind light).
+ */
+for (const theme of ["dark", "light"] as const) {
+  test(`glass content stays translucent and every text legible (${theme})`, async ({
+    page,
+  }) => {
+    await mockTauri(page, { theme, glass: true });
+    await page.setViewportSize({ width: 1040, height: 760 });
+    await page.goto("/");
+    const panelAlpha = await page.locator("main.glass-panel").evaluate((el) => {
+      const n = (
+        getComputedStyle(el).backgroundColor.match(/[\d.]+/g) ?? []
+      ).map(Number);
+      return n.length > 3 ? n[3] : 1;
+    });
+    expect(panelAlpha, "content panel fill alpha").toBeLessThanOrEqual(0.7);
+
+    const backdrop =
+      theme === "dark" ? { r: 255, g: 255, b: 255 } : { r: 0, g: 0, b: 0 };
+    const failures: string[] = [];
+    const buttons = page.locator("nav").getByRole("button");
+    const count = await buttons.count();
+    for (let i = 0; i < count; i++) {
+      await buttons.nth(i).click();
+      await page.waitForTimeout(150);
+      const found = await page.locator("main").evaluate(
+        (main, args) => {
+          const ratio = new Function(`return (${args.fn})`)() as (
+            el: Element,
+            b: { r: number; g: number; b: number },
+          ) => number;
+          const out: string[] = [];
+          for (const el of Array.from(main.querySelectorAll("*"))) {
+            const own = Array.from(el.childNodes)
+              .filter((n) => n.nodeType === Node.TEXT_NODE)
+              .map((n) => n.textContent ?? "")
+              .join("")
+              .trim();
+            if (!own) continue;
+            const r = (el as HTMLElement).getBoundingClientRect();
+            if (r.width === 0 || r.height === 0) continue;
+            const cs = getComputedStyle(el);
+            if (cs.visibility === "hidden") continue;
+            if (el.closest("[disabled],[aria-disabled='true']")) continue;
+            const size = parseFloat(cs.fontSize);
+            const large =
+              size >= 24 || (size >= 18.66 && Number(cs.fontWeight) >= 700);
+            const need = large ? 3 : 4.5;
+            const got = ratio(el, args.backdrop);
+            if (got < need)
+              out.push(`${own.slice(0, 30)} (${got.toFixed(2)} < ${need})`);
+          }
+          return out;
+        },
+        { fn: contrastOver.toString(), backdrop },
+      );
+      const name = (await buttons.nth(i).innerText()).trim();
+      failures.push(...found.map((f) => `${name}: ${f}`));
+    }
+    expect(failures).toEqual([]);
+  });
+}
