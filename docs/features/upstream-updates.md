@@ -36,3 +36,4 @@
 ## History
 
 - 2026-11-02: created
+- 2026-11-09: merged upstream `73cc8579` (#2432, TLS security advisories: openssl, openssl-sys, rustls, rustls-webpki) before an upstream release, since it is a security fix. Decision: the in-app check stays release-only; single commits on `main` are checked on request.
