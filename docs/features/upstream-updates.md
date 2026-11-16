@@ -37,3 +37,4 @@
 
 - 2026-11-02: created
 - 2026-11-09: merged upstream `73cc8579` (#2432, TLS security advisories: openssl, openssl-sys, rustls, rustls-webpki) before an upstream release, since it is a security fix. Decision: the in-app check stays release-only; single commits on `main` are checked on request.
+- 2026-11-16: merged upstream release v0.10.1 (no conflicts). Relevant on macOS: tap vs hold classified by key event time (#2097), transcription worker replaced after a backend error (#2485), 60 s deadline on post-processing, notice when the mic sends only silence (#2486), transcripts that are only "." or only the custom words are dropped (#2434, #2506), stale accessibility grants cleared on onboarding (#2057), transcribe.cpp and hf-hub bumps. The rest is Linux/Windows. App version is now 0.10.1, so the in-app upstream notice goes quiet until the next release.
